@@ -79,9 +79,13 @@ export default async function CourseDetail({ params }: Props) {
 
                         {/* Action Buttons */}
                         <div className="mt-10 pt-8 border-t border-gray-100 flex gap-4">
-                            <button className="flex-1 bg-indigo-600 text-white font-semibold py-3 px-6 rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">
-                                Tandai Selesai
-                            </button>
+                            <Link
+                                href="/dashboard/quiz"
+                                className="flex-1 bg-indigo-600 text-white font-semibold py-3 px-6 rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-200 text-center"
+                            >
+                                Mulai Ujian Akhir
+                            </Link>
+
                             <button className="px-6 py-3 border border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition">
                                 Download Materi
                             </button>
