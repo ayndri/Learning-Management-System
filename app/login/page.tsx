@@ -1,5 +1,6 @@
 "use client"; // Wajib ditambahkan karena kita pakai state & interaksi
 
+import Link from "next/link"; // Import Link untuk navigasi
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -58,7 +59,7 @@ export default function LoginPage() {
             </div>
 
             {/* Bagian Kanan (Form Login) */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16">
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16 overflow-y-auto">
                 <div className="w-full max-w-md space-y-8">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900">Login Akun</h1>
@@ -82,7 +83,7 @@ export default function LoginPage() {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="siswa@gmail.com"
-                                    className="w-full px-4 py-3 rounded-lg border text-gray-700 border-gray-300 focus:ring-2 focus:ring-indigo-600 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-lg border text-gray-900 border-gray-300 focus:ring-2 focus:ring-indigo-600 outline-none transition-all"
                                 />
                             </div>
                             <div>
@@ -93,7 +94,7 @@ export default function LoginPage() {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="123456"
-                                    className="w-full px-4 py-3 text-gray-700 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-600 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-lg border text-gray-900 border-gray-300 focus:ring-2 focus:ring-indigo-600 outline-none transition-all"
                                 />
                                 <div className="flex justify-end mt-1">
                                     <a href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">Lupa password?</a>
@@ -162,6 +163,14 @@ export default function LoginPage() {
                         Email: <code>siswa@gmail.com</code><br />
                         Pass: <code>123456</code>
                     </div>
+
+                    {/* --- LINK KE HALAMAN REGISTER --- */}
+                    <p className="mt-8 text-center text-sm text-gray-600 pb-8">
+                        Belum punya akun?{' '}
+                        <Link href="/register" className="font-bold text-indigo-600 hover:text-indigo-500 hover:underline">
+                            Daftar Gratis
+                        </Link>
+                    </p>
                 </div>
             </div>
         </div>
