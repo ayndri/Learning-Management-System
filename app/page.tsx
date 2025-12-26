@@ -248,9 +248,12 @@ export default function Home() {
                   </span>
                   <span className="text-gray-400 text-lg font-medium">/bln</span>
                 </div>
-                <button className="block w-full py-4 px-6 text-center rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-500 hover:shadow-lg hover:shadow-indigo-500/40 transition-all transform hover:-translate-y-1">
+                <Link
+                  href="/checkout"
+                  className="block w-full py-4 px-6 text-center rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-500 hover:shadow-lg hover:shadow-indigo-500/40 transition-all transform hover:-translate-y-1"
+                >
                   Mulai Berlangganan
-                </button>
+                </Link>
                 <p className="text-center text-xs text-gray-500 mt-4">7 hari garansi uang kembali</p>
                 <ul className="mt-8 space-y-4 text-sm text-gray-300">
                   <li className="flex items-center gap-3"><span className="text-indigo-400 bg-indigo-500/20 rounded-full p-1 text-xs">✓</span> <strong>Semua Fitur Gratis</strong></li>

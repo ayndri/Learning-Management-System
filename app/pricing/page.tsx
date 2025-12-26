@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "next/link"; // Pastikan import ini ada
 import { useState } from "react";
 
 export default function PricingPage() {
@@ -39,7 +39,7 @@ export default function PricingPage() {
             {/* --- PRICING CARDS --- */}
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
 
-                {/* CARD 1: BASIC */}
+                {/* CARD 1: BASIC (Link ke Register) */}
                 <div className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition border border-gray-100">
                     <h3 className="text-lg font-semibold text-gray-900">Pemula</h3>
                     <p className="text-gray-500 text-sm mt-2">Untuk yang baru coba-coba.</p>
@@ -57,7 +57,7 @@ export default function PricingPage() {
                     </ul>
                 </div>
 
-                {/* CARD 2: PRO (POPULAR) */}
+                {/* CARD 2: PRO (Link ke Checkout) -> INI YANG DIPERBAIKI */}
                 <div className="bg-gray-900 rounded-3xl p-8 shadow-2xl relative transform md:-translate-y-4 border border-gray-800">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-4 py-1 rounded-full text-xs font-bold tracking-wide shadow-lg">
                         PALING LARIS
@@ -70,9 +70,15 @@ export default function PricingPage() {
                         </span>
                         <span className="text-gray-400 text-sm font-normal">/bulan</span>
                     </div>
-                    <button className="block w-full py-4 px-6 text-center rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30 transition">
+
+                    {/* BAGIAN PENTING: Menggunakan Link ke /checkout */}
+                    <Link
+                        href="/checkout"
+                        className="block w-full py-4 px-6 text-center rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-500 hover:shadow-lg hover:shadow-indigo-500/40 transition-all transform hover:-translate-y-1"
+                    >
                         Mulai Berlangganan
-                    </button>
+                    </Link>
+
                     <p className="text-center text-xs text-gray-500 mt-3">Garansi uang kembali 7 hari</p>
                     <ul className="mt-8 space-y-4 text-sm text-gray-300">
                         <li className="flex items-center gap-3"><span className="text-indigo-400">✓</span> <strong>Semua Fitur Gratis</strong></li>
@@ -82,7 +88,7 @@ export default function PricingPage() {
                     </ul>
                 </div>
 
-                {/* CARD 3: TEAM */}
+                {/* CARD 3: TEAM (Kontak Sales - Button biasa) */}
                 <div className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition border border-gray-100">
                     <h3 className="text-lg font-semibold text-gray-900">Tim & Sekolah</h3>
                     <p className="text-gray-500 text-sm mt-2">Untuk pelatihan massal.</p>
