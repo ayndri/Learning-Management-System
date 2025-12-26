@@ -97,7 +97,9 @@ export default function LoginPage() {
                                     className="w-full px-4 py-3 rounded-lg border text-gray-900 border-gray-300 focus:ring-2 focus:ring-indigo-600 outline-none transition-all"
                                 />
                                 <div className="flex justify-end mt-1">
-                                    <a href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">Lupa password?</a>
+                                    <Link href="/forgot-password" className="text-sm font-medium text-indigo-600 hover:text-indigo-500 hover:underline">
+                                        Lupa password?
+                                    </Link>
                                 </div>
                             </div>
                         </div>
