@@ -1,10 +1,16 @@
+"use client"; // Wajib ditambahkan karena ada interaksi tombol (State)
+
 import Link from "next/link";
+import { useState } from "react";
 import { courses } from "../data/courses";
 
 export default function Home() {
+  // State untuk Toggle Harga (Bulanan/Tahunan)
+  const [isYearly, setIsYearly] = useState(false);
+
   return (
     <div className="min-h-screen flex flex-col bg-white overflow-x-hidden">
-
+      {/* --- NAVBAR --- */}
       <header className="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-lg border-b border-gray-100 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2 group cursor-pointer">
@@ -25,19 +31,27 @@ export default function Home() {
             ))}
           </nav>
 
-          <Link
-            href="/login"
-            className="hidden md:block px-6 py-2.5 text-sm font-semibold text-white bg-gray-900 rounded-full hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 transform hover:-translate-y-0.5"
-          >
-            Mulai Gratis
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/login"
+              className="text-sm font-semibold text-gray-600 hover:text-indigo-600 hidden md:block"
+            >
+              Masuk
+            </Link>
+            <Link
+              href="/register"
+              className="hidden md:block px-6 py-2.5 text-sm font-semibold text-white bg-gray-900 rounded-full hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 transform hover:-translate-y-0.5"
+            >
+              Mulai Gratis
+            </Link>
+          </div>
         </div>
       </header>
 
       <main className="flex-grow pt-20">
 
+        {/* --- HERO SECTION --- */}
         <section className="relative pt-20 pb-40 overflow-hidden">
-
           <div className="absolute inset-0 -z-10 bg-white">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-indigo-100/50 rounded-full blur-3xl opacity-50 animate-float"></div>
             <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-purple-100/50 rounded-full blur-3xl opacity-50 animate-float delay-300"></div>
@@ -103,6 +117,7 @@ export default function Home() {
           </div>
         </section>
 
+        {/* --- COURSES SECTION --- */}
         <section id="courses" className="py-32 bg-gray-50 relative">
           <div className="max-w-7xl mx-auto px-6">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
@@ -124,10 +139,8 @@ export default function Home() {
                 >
                   <div className={`h-56 w-full bg-gradient-to-br ${getGradient(index)} relative overflow-hidden`}>
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition duration-500"></div>
-
                     <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-white/20 rounded-full blur-xl group-hover:scale-150 transition duration-700"></div>
                     <div className="absolute top-4 left-4 w-12 h-12 bg-white/20 rounded-full blur-lg"></div>
-
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-500 transform translate-y-4 group-hover:translate-y-0">
                       <div className="w-16 h-16 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center text-white text-2xl border border-white/50">
                         ▶
@@ -169,15 +182,115 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* --- PRICING SECTION (BARU) --- */}
+        <section id="pricing" className="py-32 bg-white relative">
+          <div className="max-w-7xl mx-auto px-6">
+
+            {/* Pricing Header */}
+            <div className="text-center max-w-3xl mx-auto mb-20 animate-fade-in-up">
+              <h2 className="text-indigo-600 font-bold tracking-wide uppercase text-sm mb-4">
+                Investasi Masa Depan
+              </h2>
+              <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6">
+                Pilih Paket Belajarmu
+              </h1>
+              <p className="text-xl text-gray-500">
+                Akses ribuan materi koding premium dengan harga terjangkau.
+                Batalkan kapan saja.
+              </p>
+
+              {/* TOGGLE SWITCH */}
+              <div className="mt-8 flex items-center justify-center gap-4">
+                <span className={`text-sm font-semibold transition-colors ${!isYearly ? 'text-gray-900' : 'text-gray-400'}`}>Bulanan</span>
+                <button
+                  onClick={() => setIsYearly(!isYearly)}
+                  className="relative w-16 h-8 rounded-full bg-gray-200 p-1 transition-colors duration-300 focus:outline-none hover:bg-gray-300"
+                >
+                  <div className={`w-6 h-6 bg-indigo-600 rounded-full shadow-md transform transition-transform duration-300 ${isYearly ? 'translate-x-8' : 'translate-x-0'}`}></div>
+                </button>
+                <span className={`text-sm font-semibold transition-colors ${isYearly ? 'text-gray-900' : 'text-gray-400'}`}>
+                  Tahunan <span className="text-indigo-600 text-xs bg-indigo-50 px-2 py-0.5 rounded-full ml-1 border border-indigo-100">-20%</span>
+                </span>
+              </div>
+            </div>
+
+            {/* Pricing Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+
+              {/* Card 1: Free */}
+              <div className="bg-white rounded-3xl p-8 border border-gray-100 hover:border-indigo-100 shadow-lg hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300 group">
+                <h3 className="text-xl font-bold text-gray-900">Pemula</h3>
+                <p className="text-gray-500 text-sm mt-2">Mulai langkah pertamamu.</p>
+                <div className="my-8">
+                  <span className="text-5xl font-extrabold text-gray-900 tracking-tight">Rp 0</span>
+                </div>
+                <Link href="/register" className="block w-full py-4 px-6 text-center rounded-xl border-2 border-gray-100 text-gray-700 font-bold hover:border-indigo-600 hover:text-indigo-600 bg-transparent transition-all">
+                  Daftar Gratis
+                </Link>
+                <ul className="mt-8 space-y-4 text-sm text-gray-600">
+                  <li className="flex items-center gap-3"><span className="text-green-500 bg-green-50 rounded-full p-1 text-xs">✓</span> Akses Kelas Gratis</li>
+                  <li className="flex items-center gap-3"><span className="text-green-500 bg-green-50 rounded-full p-1 text-xs">✓</span> Forum Diskusi Umum</li>
+                  <li className="flex items-center gap-3 text-gray-400 opacity-50"><span className="text-gray-300 bg-gray-100 rounded-full p-1 text-xs">✕</span> Sertifikat Resmi</li>
+                </ul>
+              </div>
+
+              {/* Card 2: Pro (Highlight) */}
+              <div className="bg-gray-900 rounded-3xl p-8 border border-gray-800 shadow-2xl relative transform md:-translate-y-6">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-1.5 rounded-full text-xs font-bold tracking-wide shadow-lg uppercase">
+                  Paling Laris
+                </div>
+                <h3 className="text-xl font-bold text-white">Pro Member</h3>
+                <p className="text-gray-400 text-sm mt-2">Untuk karir profesional.</p>
+                <div className="my-8 text-white">
+                  <span className="text-5xl font-extrabold tracking-tight">
+                    {isYearly ? "80rb" : "100rb"}
+                  </span>
+                  <span className="text-gray-400 text-lg font-medium">/bln</span>
+                </div>
+                <button className="block w-full py-4 px-6 text-center rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-500 hover:shadow-lg hover:shadow-indigo-500/40 transition-all transform hover:-translate-y-1">
+                  Mulai Berlangganan
+                </button>
+                <p className="text-center text-xs text-gray-500 mt-4">7 hari garansi uang kembali</p>
+                <ul className="mt-8 space-y-4 text-sm text-gray-300">
+                  <li className="flex items-center gap-3"><span className="text-indigo-400 bg-indigo-500/20 rounded-full p-1 text-xs">✓</span> <strong>Semua Fitur Gratis</strong></li>
+                  <li className="flex items-center gap-3"><span className="text-indigo-400 bg-indigo-500/20 rounded-full p-1 text-xs">✓</span> Sertifikat Kelulusan</li>
+                  <li className="flex items-center gap-3"><span className="text-indigo-400 bg-indigo-500/20 rounded-full p-1 text-xs">✓</span> Source Code Project</li>
+                  <li className="flex items-center gap-3"><span className="text-indigo-400 bg-indigo-500/20 rounded-full p-1 text-xs">✓</span> Konsultasi Mentor</li>
+                </ul>
+              </div>
+
+              {/* Card 3: Team */}
+              <div className="bg-white rounded-3xl p-8 border border-gray-100 hover:border-indigo-100 shadow-lg hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300 group">
+                <h3 className="text-xl font-bold text-gray-900">Sekolah & Tim</h3>
+                <p className="text-gray-500 text-sm mt-2">Pelatihan skala besar.</p>
+                <div className="my-8">
+                  <span className="text-4xl font-extrabold text-gray-900 tracking-tight">Hubungi</span>
+                </div>
+                <button className="block w-full py-4 px-6 text-center rounded-xl border-2 border-gray-100 text-gray-700 font-bold hover:border-gray-900 hover:text-gray-900 bg-transparent transition-all">
+                  Kontak Sales
+                </button>
+                <ul className="mt-8 space-y-4 text-sm text-gray-600">
+                  <li className="flex items-center gap-3"><span className="text-green-500 bg-green-50 rounded-full p-1 text-xs">✓</span> <strong>Semua Fitur Pro</strong></li>
+                  <li className="flex items-center gap-3"><span className="text-green-500 bg-green-50 rounded-full p-1 text-xs">✓</span> Dashboard Admin</li>
+                  <li className="flex items-center gap-3"><span className="text-green-500 bg-green-50 rounded-full p-1 text-xs">✓</span> Laporan Progress</li>
+                </ul>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
       </main>
 
       <footer className="bg-white border-t border-gray-100 py-12 text-center">
-        <p className="text-gray-400 font-medium">Dibuat dengan ❤️</p>
+        <p className="text-gray-400 font-medium">Dibuat dengan ❤️ oleh LMS Keren</p>
       </footer>
     </div>
   );
 }
 
+// --- Helper Functions ---
 function getGradient(index: number) {
   const gradients = [
     "from-violet-500 to-fuchsia-600",
