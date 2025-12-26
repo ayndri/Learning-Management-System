@@ -172,7 +172,7 @@ export default function Home() {
       </main>
 
       <footer className="bg-white border-t border-gray-100 py-12 text-center">
-        <p className="text-gray-400 font-medium">Dibuat dengan ❤️ oleh LMS Keren</p>
+        <p className="text-gray-400 font-medium">Dibuat dengan ❤️</p>
       </footer>
     </div>
   );
