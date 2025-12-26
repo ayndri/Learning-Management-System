@@ -1,17 +1,76 @@
 "use client";
 
+import Image from "next/image"; // Gunakan component Image dari Next.js untuk performa
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function CreateCoursePage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
+    // --- STATE UNTUK FILE & PREVIEW ---
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null); // Ref untuk trigger input file hidden
+
+    // --- HANDLER SAAT FILE DIPILIH ---
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+
+        if (file) {
+            // Validasi tipe file (opsional tapi disarankan)
+            if (!file.type.startsWith('image/')) {
+                alert("Mohon pilih file gambar (JPG/PNG/WEBP).");
+                return;
+            }
+
+            setSelectedFile(file);
+            // Membuat URL sementara untuk preview
+            const objectUrl = URL.createObjectURL(file);
+            setPreviewUrl(objectUrl);
+        }
+    };
+
+    // --- CLEANUP MEMORY (PENTING!) ---
+    // Membersihkan URL sementara saat komponen unmount atau file berubah
+    // agar browser tidak lambat (memory leak)
+    useEffect(() => {
+        return () => {
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+            }
+        };
+    }, [previewUrl]);
+
+    // --- HANDLER HAPUS FILE ---
+    const handleRemoveFile = () => {
+        setSelectedFile(null);
+        setPreviewUrl(null);
+        // Reset nilai input file agar bisa memilih file yang sama lagi jika perlu
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    };
+
+    // --- TRIGGER TOMBOL PILIH FILE ---
+    const triggerFileInput = () => {
+        fileInputRef.current?.click();
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!selectedFile && !previewUrl) {
+            alert("Mohon upload thumbnail kursus.");
+            return;
+        }
+
         setIsLoading(true);
-        // Simulasi Save ke Database
+        // --- SIMULASI PROSES UPLOAD ---
+        // Di sini nanti ada logika upload 'selectedFile' ke server/cloud storage (misal: AWS S3, Cloudinary)
+        console.log("File siap upload:", selectedFile);
+
         await new Promise(resolve => setTimeout(resolve, 1500));
         setIsLoading(false);
         alert("Kursus berhasil dibuat!");
@@ -19,7 +78,7 @@ export default function CreateCoursePage() {
     };
 
     return (
-        <div className="max-w-4xl mx-auto animate-fade-in-up">
+        <div className="max-w-4xl mx-auto animate-fade-in-up pb-20">
             <div className="flex items-center gap-4 mb-8">
                 <Link href="/admin/dashboard/courses" className="text-gray-500 hover:text-gray-900 transition">
                     &larr; Kembali
@@ -33,11 +92,11 @@ export default function CreateCoursePage() {
                     {/* Judul & Kategori */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Judul Kursus</label>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Judul Kursus *</label>
                             <input type="text" required placeholder="Contoh: Belajar Next.js dari Nol" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" />
                         </div>
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Kategori</label>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Kategori *</label>
                             <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition bg-white">
                                 <option>Web Development</option>
                                 <option>Mobile Apps</option>
@@ -49,23 +108,23 @@ export default function CreateCoursePage() {
 
                     {/* Deskripsi */}
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Deskripsi Singkat</label>
-                        <textarea rows={4} placeholder="Jelaskan apa yang akan dipelajari siswa..." className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition"></textarea>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Deskripsi Singkat *</label>
+                        <textarea required rows={4} placeholder="Jelaskan apa yang akan dipelajari siswa..." className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition"></textarea>
                     </div>
 
                     {/* Harga & Status */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Harga (Rp)</label>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Harga (Rp) *</label>
                             <div className="relative">
                                 <span className="absolute left-3 top-2 text-gray-500">Rp</span>
-                                <input type="number" placeholder="0" className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" />
+                                <input type="number" required placeholder="0" className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" />
                             </div>
                             <p className="text-xs text-gray-500 mt-1">Isi 0 untuk kursus Gratis.</p>
                         </div>
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Durasi (Jam)</label>
-                            <input type="text" placeholder="Contoh: 4h 30m" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" />
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Durasi *</label>
+                            <input type="text" required placeholder="Contoh: 4h 30m" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" />
                         </div>
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
@@ -76,20 +135,67 @@ export default function CreateCoursePage() {
                         </div>
                     </div>
 
-                    {/* Upload Thumbnail & Video Preview */}
-                    <div className="p-6 bg-gray-50 rounded-xl border border-dashed border-gray-300 text-center">
-                        <div className="text-4xl mb-2">🖼️</div>
-                        <h3 className="text-sm font-medium text-gray-900">Upload Thumbnail Kursus</h3>
-                        <p className="text-xs text-gray-500 mb-4">Format: JPG/PNG, Max 2MB.</p>
-                        <button type="button" className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition">
-                            Pilih File
-                        </button>
+                    {/* --- AREA UPLOAD THUMBNAIL (DENGAN PREVIEW) --- */}
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Thumbnail Kursus *</label>
+
+                        {/* Input File Hidden */}
+                        <input
+                            type="file"
+                            accept="image/png, image/jpeg, image/webp"
+                            ref={fileInputRef}
+                            onChange={handleFileChange}
+                            className="hidden"
+                        />
+
+                        {previewUrl ? (
+                            // --- TAMPILAN JIKA ADA PREVIEW ---
+                            <div className="relative w-full h-64 bg-gray-100 rounded-xl overflow-hidden border border-gray-200 group">
+                                {/* Menggunakan Next Image untuk optimalisasi */}
+                                <Image
+                                    src={previewUrl}
+                                    alt="Thumbnail Preview"
+                                    fill
+                                    className="object-cover"
+                                />
+                                {/* Overlay & Tombol Ganti/Hapus */}
+                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={triggerFileInput}
+                                        className="px-4 py-2 bg-white/90 hover:bg-white text-gray-800 rounded-lg text-sm font-medium transition"
+                                    >
+                                        Ganti Gambar
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleRemoveFile}
+                                        className="px-4 py-2 bg-red-600/90 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition"
+                                    >
+                                        Hapus
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            // --- TAMPILAN JIKA BELUM ADA FILE ---
+                            <div
+                                onClick={triggerFileInput}
+                                className="p-8 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 text-center hover:bg-gray-100 transition cursor-pointer group"
+                            >
+                                <div className="text-4xl mb-2 group-hover:scale-110 transition-transform">🖼️</div>
+                                <h3 className="text-sm font-medium text-gray-900">Upload Thumbnail Kursus</h3>
+                                <p className="text-xs text-gray-500 mb-4">Format: JPG/PNG/WEBP, Max 2MB.</p>
+                                <button type="button" className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 transition pointer-events-none">
+                                    Pilih File
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     {/* URL Video Intro */}
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Link Video Intro (YouTube/Vimeo)</label>
-                        <input type="url" placeholder="https://youtube.com/watch?v=..." className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" />
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Link Video Intro (YouTube/Vimeo) *</label>
+                        <input type="url" required placeholder="https://youtube.com/watch?v=..." className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" />
                     </div>
 
                 </div>
@@ -102,9 +208,17 @@ export default function CreateCoursePage() {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="px-6 py-2.5 rounded-lg bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-200 disabled:opacity-50"
+                        className="px-6 py-2.5 rounded-lg bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-200 disabled:opacity-50 flex items-center gap-2"
                     >
-                        {isLoading ? "Menyimpan..." : "Simpan Kursus"}
+                        {isLoading ? (
+                            <>
+                                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Menyimpan...
+                            </>
+                        ) : "Simpan Kursus"}
                     </button>
                 </div>
 

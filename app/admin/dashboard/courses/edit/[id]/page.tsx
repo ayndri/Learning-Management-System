@@ -1,18 +1,24 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function EditCoursePage() {
     const router = useRouter();
     const params = useParams();
-    const courseId = params.id; // Ambil ID dari URL
+    const courseId = params.id;
 
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
 
-    // State Form (Awalnya kosong)
+    // --- STATE FILE & IMAGE ---
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null); // Untuk file baru
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // State Form
     const [formData, setFormData] = useState({
         title: "",
         category: "Web Development",
@@ -20,28 +26,60 @@ export default function EditCoursePage() {
         price: 0,
         duration: "",
         status: "Draft",
-        videoUrl: ""
+        videoUrl: "",
+        thumbnailUrl: "" // Menyimpan URL gambar lama dari database
     });
 
-    // Simulasi "Fetch Data" dari Database berdasarkan ID
+    // --- 1. FETCH DATA (SIMULASI) ---
     useEffect(() => {
-        // Pura-pura ambil data ke server...
         setTimeout(() => {
-            // Ini data dummy simulasi. Di real app, gunakan: fetch(`/api/courses/${courseId}`)
+            // Data Dummy (Ceritanya dari database)
             const dummyData = {
                 title: "HTML Dasar untuk Pemula",
                 category: "Web Development",
-                description: "Belajar dasar-dasar HTML 5 lengkap.",
+                description: "Belajar dasar-dasar HTML 5 lengkap dari nol sampai bisa membuat website sederhana.",
                 price: 0,
                 duration: "2h 30m",
                 status: "Published",
-                videoUrl: "https://youtube.com/..."
+                videoUrl: "https://www.youtube.com/watch?v=kUMe1FH4CHE",
+                // Gambar dummy dari internet (Unsplash)
+                thumbnailUrl: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=800&q=80"
             };
 
             setFormData(dummyData);
             setIsLoading(false);
         }, 1000);
     }, [courseId]);
+
+    // --- 2. HANDLE FILE CHANGE ---
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            if (!file.type.startsWith('image/')) {
+                alert("Mohon pilih file gambar.");
+                return;
+            }
+            setSelectedFile(file);
+            setPreviewUrl(URL.createObjectURL(file)); // Buat preview lokal
+        }
+    };
+
+    // Cleanup memory preview
+    useEffect(() => {
+        return () => {
+            if (previewUrl) URL.revokeObjectURL(previewUrl);
+        };
+    }, [previewUrl]);
+
+    // --- 3. HANDLE BUTTON ACTIONS ---
+    const triggerFileInput = () => fileInputRef.current?.click();
+
+    const handleRemoveNewFile = () => {
+        // Batalkan file baru, kembali ke gambar lama (jika ada)
+        setSelectedFile(null);
+        setPreviewUrl(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+    };
 
     const handleChange = (e: any) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -50,25 +88,40 @@ export default function EditCoursePage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSaving(true);
-        // Simulasi Update ke Database
+
+        // Logika: Jika ada selectedFile, upload file baru. Jika tidak, pakai formData.thumbnailUrl lama.
+        console.log("Saving...", formData);
+        if (selectedFile) console.log("Uploading new image:", selectedFile.name);
+
         await new Promise(resolve => setTimeout(resolve, 1500));
         setIsSaving(false);
         alert("Perubahan berhasil disimpan!");
         router.push("/admin/dashboard/courses");
     };
 
+    // --- LOGIKA TAMPILAN GAMBAR ---
+    // Prioritas: Preview File Baru -> Gambar Lama dari DB -> Kosong
+    const currentImageToDisplay = previewUrl || formData.thumbnailUrl;
+
     if (isLoading) {
-        return <div className="p-8 text-center">Mengambil data kursus...</div>;
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center space-y-4">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+                <p className="text-gray-500">Mengambil data kursus...</p>
+            </div>
+        );
     }
 
     return (
-        <div className="max-w-4xl mx-auto animate-fade-in-up">
+        <div className="max-w-4xl mx-auto animate-fade-in-up pb-20">
             <div className="flex items-center gap-4 mb-8">
                 <Link href="/admin/dashboard/courses" className="text-gray-500 hover:text-gray-900 transition">
                     &larr; Batal Edit
                 </Link>
-                <h1 className="text-2xl font-bold text-gray-900">Edit Kursus</h1>
-                <span className="bg-gray-100 text-gray-500 text-xs px-2 py-1 rounded">ID: {courseId}</span>
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900">Edit Kursus</h1>
+                    <p className="text-xs text-gray-400 mt-1">ID: {courseId}</p>
+                </div>
             </div>
 
             <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
@@ -152,6 +205,72 @@ export default function EditCoursePage() {
                         </div>
                     </div>
 
+                    {/* --- AREA UPLOAD IMAGE (PREVIEW EDIT MODE) --- */}
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Thumbnail Kursus</label>
+
+                        <input
+                            type="file"
+                            accept="image/*"
+                            ref={fileInputRef}
+                            onChange={handleFileChange}
+                            className="hidden"
+                        />
+
+                        {currentImageToDisplay ? (
+                            // TAMPILAN JIKA ADA GAMBAR (Entah baru atau lama)
+                            <div className="relative w-full h-64 bg-gray-100 rounded-xl overflow-hidden border border-gray-200 group">
+                                {/* unoptimized: true agar bisa load gambar external dummy tanpa config next.config.js */}
+                                <Image
+                                    src={currentImageToDisplay}
+                                    alt="Thumbnail"
+                                    fill
+                                    className="object-cover"
+                                    unoptimized={true}
+                                />
+
+                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3">
+                                    <p className="text-white text-sm font-medium">
+                                        {previewUrl ? "Gambar Baru Dipilih" : "Gambar Saat Ini"}
+                                    </p>
+                                    <div className="flex gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={triggerFileInput}
+                                            className="px-4 py-2 bg-white/90 hover:bg-white text-gray-800 rounded-lg text-sm font-medium transition"
+                                        >
+                                            Ganti Gambar
+                                        </button>
+
+                                        {/* Tombol Reset hanya muncul jika user sudah memilih file baru */}
+                                        {previewUrl && (
+                                            <button
+                                                type="button"
+                                                onClick={handleRemoveNewFile}
+                                                className="px-4 py-2 bg-yellow-500/90 hover:bg-yellow-500 text-white rounded-lg text-sm font-medium transition"
+                                            >
+                                                Batal Ganti
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            // JIKA TIDAK ADA GAMBAR SAMA SEKALI
+                            <div
+                                onClick={triggerFileInput}
+                                className="p-8 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 text-center hover:bg-gray-100 transition cursor-pointer group"
+                            >
+                                <div className="text-4xl mb-2 group-hover:scale-110 transition-transform">🖼️</div>
+                                <h3 className="text-sm font-medium text-gray-900">Upload Thumbnail</h3>
+                                <p className="text-xs text-gray-500 mb-4">Belum ada gambar.</p>
+                                <button type="button" className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 pointer-events-none">
+                                    Pilih File
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
                     {/* URL Video */}
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Link Video Intro</label>
@@ -174,9 +293,14 @@ export default function EditCoursePage() {
                     <button
                         type="submit"
                         disabled={isSaving}
-                        className="px-6 py-2.5 rounded-lg bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-200 disabled:opacity-50"
+                        className="px-6 py-2.5 rounded-lg bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-200 disabled:opacity-50 flex items-center gap-2"
                     >
-                        {isSaving ? "Menyimpan..." : "Update Perubahan"}
+                        {isSaving ? (
+                            <>
+                                <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                Menyimpan...
+                            </>
+                        ) : "Update Perubahan"}
                     </button>
                 </div>
 
