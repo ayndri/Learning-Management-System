@@ -79,8 +79,13 @@ export default function AdminCoursesPage() {
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-right flex justify-end gap-2">
+                                        <Link
+                                            href={`/admin/dashboard/courses/${course.id}/builder`}
+                                            className="text-gray-600 hover:text-gray-900 font-medium text-xs border border-gray-300 hover:bg-gray-100 px-3 py-1.5 rounded transition flex items-center gap-1"
+                                        >
+                                            📂 Materi
+                                        </Link>
 
-                                        {/* TOMBOL EDIT (Sekarang pakai Link) */}
                                         <Link
                                             href={`/admin/dashboard/courses/edit/${course.id}`}
                                             className="text-indigo-600 hover:text-indigo-800 font-medium text-xs border border-indigo-200 hover:bg-indigo-50 px-3 py-1.5 rounded transition"
@@ -88,7 +93,6 @@ export default function AdminCoursesPage() {
                                             Edit
                                         </Link>
 
-                                        {/* TOMBOL DELETE (Panggil fungsi handleDelete) */}
                                         <button
                                             onClick={() => handleDelete(course.id)}
                                             className="text-red-500 hover:text-red-700 font-medium text-xs border border-red-200 hover:bg-red-50 px-3 py-1.5 rounded transition"
