@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image"; // Gunakan component Image dari Next.js untuk performa
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -12,48 +12,37 @@ export default function CreateCoursePage() {
     // --- STATE UNTUK FILE & PREVIEW ---
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null); // Ref untuk trigger input file hidden
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     // --- HANDLER SAAT FILE DIPILIH ---
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
 
         if (file) {
-            // Validasi tipe file (opsional tapi disarankan)
             if (!file.type.startsWith('image/')) {
                 alert("Mohon pilih file gambar (JPG/PNG/WEBP).");
                 return;
             }
-
             setSelectedFile(file);
-            // Membuat URL sementara untuk preview
             const objectUrl = URL.createObjectURL(file);
             setPreviewUrl(objectUrl);
         }
     };
 
-    // --- CLEANUP MEMORY (PENTING!) ---
-    // Membersihkan URL sementara saat komponen unmount atau file berubah
-    // agar browser tidak lambat (memory leak)
+    // --- CLEANUP MEMORY ---
     useEffect(() => {
         return () => {
-            if (previewUrl) {
-                URL.revokeObjectURL(previewUrl);
-            }
+            if (previewUrl) URL.revokeObjectURL(previewUrl);
         };
     }, [previewUrl]);
 
-    // --- HANDLER HAPUS FILE ---
+    // --- HANDLER BUTTONS ---
     const handleRemoveFile = () => {
         setSelectedFile(null);
         setPreviewUrl(null);
-        // Reset nilai input file agar bisa memilih file yang sama lagi jika perlu
-        if (fileInputRef.current) {
-            fileInputRef.current.value = "";
-        }
+        if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
-    // --- TRIGGER TOMBOL PILIH FILE ---
     const triggerFileInput = () => {
         fileInputRef.current?.click();
     }
@@ -67,11 +56,10 @@ export default function CreateCoursePage() {
         }
 
         setIsLoading(true);
-        // --- SIMULASI PROSES UPLOAD ---
-        // Di sini nanti ada logika upload 'selectedFile' ke server/cloud storage (misal: AWS S3, Cloudinary)
+        // Simulasi Upload
         console.log("File siap upload:", selectedFile);
-
         await new Promise(resolve => setTimeout(resolve, 1500));
+
         setIsLoading(false);
         alert("Kursus berhasil dibuat!");
         router.push("/admin/dashboard/courses");
@@ -89,57 +77,81 @@ export default function CreateCoursePage() {
             <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
 
                 <div className="p-8 space-y-6">
-                    {/* Judul & Kategori */}
+
+                    {/* 1. Judul (Full Width) */}
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Judul Kursus *</label>
+                        <input
+                            type="text"
+                            required
+                            placeholder="Contoh: Belajar Next.js dari Nol sampai Mahir"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                        />
+                    </div>
+
+                    {/* 2. Kategori & Level (Grid) */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Judul Kursus *</label>
-                            <input type="text" required placeholder="Contoh: Belajar Next.js dari Nol" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" />
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Kategori *</label>
+                            <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition bg-white cursor-pointer">
+                                <option value="" disabled selected>Pilih Kategori</option>
+                                <option value="Web Development">Web Development</option>
+                                <option value="Mobile Apps">Mobile Apps</option>
+                                <option value="Data Science">Data Science</option>
+                                <option value="UI/UX Design">UI/UX Design</option>
+                                <option value="Cyber Security">Cyber Security</option>
+                            </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Kategori *</label>
-                            <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition bg-white">
-                                <option>Web Development</option>
-                                <option>Mobile Apps</option>
-                                <option>Data Science</option>
-                                <option>UI/UX Design</option>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Tingkat Kesulitan *</label>
+                            <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition bg-white cursor-pointer">
+                                <option value="Beginner">Pemula (Beginner)</option>
+                                <option value="Intermediate">Menengah (Intermediate)</option>
+                                <option value="Advanced">Mahir (Advanced)</option>
+                                <option value="All Level">Semua Tingkat</option>
                             </select>
                         </div>
                     </div>
 
-                    {/* Deskripsi */}
+                    {/* 3. Deskripsi */}
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Deskripsi Singkat *</label>
-                        <textarea required rows={4} placeholder="Jelaskan apa yang akan dipelajari siswa..." className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition"></textarea>
+                        <textarea
+                            required
+                            rows={5}
+                            placeholder="Jelaskan apa yang akan dipelajari siswa, prasyarat, dan hasil akhir dari kursus ini..."
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition resize-y"
+                        ></textarea>
                     </div>
 
-                    {/* Harga & Status */}
+                    {/* 4. Harga, Durasi, Status */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">Harga (Rp) *</label>
                             <div className="relative">
-                                <span className="absolute left-3 top-2 text-gray-500">Rp</span>
-                                <input type="number" required placeholder="0" className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" />
+                                <span className="absolute left-3 top-3 text-gray-500">Rp</span>
+                                <input type="number" required placeholder="0" className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" />
                             </div>
                             <p className="text-xs text-gray-500 mt-1">Isi 0 untuk kursus Gratis.</p>
                         </div>
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Durasi *</label>
-                            <input type="text" required placeholder="Contoh: 4h 30m" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" />
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Durasi (Jam) *</label>
+                            <input type="text" required placeholder="Contoh: 4h 30m" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" />
                         </div>
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-                            <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition bg-white">
+                            <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition bg-white cursor-pointer">
                                 <option value="Draft">Draft (Disembunyikan)</option>
                                 <option value="Published">Published (Tampil)</option>
                             </select>
                         </div>
                     </div>
 
-                    {/* --- AREA UPLOAD THUMBNAIL (DENGAN PREVIEW) --- */}
+                    <hr className="border-gray-100" />
+
+                    {/* 5. Upload Thumbnail */}
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Thumbnail Kursus *</label>
-
-                        {/* Input File Hidden */}
                         <input
                             type="file"
                             accept="image/png, image/jpeg, image/webp"
@@ -149,16 +161,13 @@ export default function CreateCoursePage() {
                         />
 
                         {previewUrl ? (
-                            // --- TAMPILAN JIKA ADA PREVIEW ---
                             <div className="relative w-full h-64 bg-gray-100 rounded-xl overflow-hidden border border-gray-200 group">
-                                {/* Menggunakan Next Image untuk optimalisasi */}
                                 <Image
                                     src={previewUrl}
                                     alt="Thumbnail Preview"
                                     fill
                                     className="object-cover"
                                 />
-                                {/* Overlay & Tombol Ganti/Hapus */}
                                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                                     <button
                                         type="button"
@@ -177,7 +186,6 @@ export default function CreateCoursePage() {
                                 </div>
                             </div>
                         ) : (
-                            // --- TAMPILAN JIKA BELUM ADA FILE ---
                             <div
                                 onClick={triggerFileInput}
                                 className="p-8 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 text-center hover:bg-gray-100 transition cursor-pointer group"
@@ -192,10 +200,10 @@ export default function CreateCoursePage() {
                         )}
                     </div>
 
-                    {/* URL Video Intro */}
+                    {/* 6. URL Video Intro */}
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Link Video Intro (YouTube/Vimeo) *</label>
-                        <input type="url" required placeholder="https://youtube.com/watch?v=..." className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" />
+                        <input type="url" required placeholder="https://youtube.com/watch?v=..." className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" />
                     </div>
 
                 </div>

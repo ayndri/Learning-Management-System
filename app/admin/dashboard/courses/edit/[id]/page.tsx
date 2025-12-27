@@ -22,6 +22,7 @@ export default function EditCoursePage() {
     const [formData, setFormData] = useState({
         title: "",
         category: "Web Development",
+        level: "Beginner", // Field baru: Level
         description: "",
         price: 0,
         duration: "",
@@ -37,6 +38,7 @@ export default function EditCoursePage() {
             const dummyData = {
                 title: "HTML Dasar untuk Pemula",
                 category: "Web Development",
+                level: "Beginner", // Data level dummy
                 description: "Belajar dasar-dasar HTML 5 lengkap dari nol sampai bisa membuat website sederhana.",
                 price: 0,
                 duration: "2h 30m",
@@ -127,58 +129,79 @@ export default function EditCoursePage() {
             <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
 
                 <div className="p-8 space-y-6">
-                    {/* Judul & Kategori */}
+
+                    {/* 1. Judul (Full Width) */}
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Judul Kursus</label>
+                        <input
+                            name="title"
+                            type="text"
+                            required
+                            value={formData.title}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                        />
+                    </div>
+
+                    {/* 2. Kategori & Level (Grid) */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Judul Kursus</label>
-                            <input
-                                name="title"
-                                type="text"
-                                required
-                                value={formData.title}
-                                onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition"
-                            />
-                        </div>
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">Kategori</label>
                             <select
                                 name="category"
                                 value={formData.category}
                                 onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition bg-white"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition bg-white cursor-pointer"
                             >
-                                <option>Web Development</option>
-                                <option>Mobile Apps</option>
-                                <option>Data Science</option>
-                                <option>UI/UX Design</option>
+                                <option value="Web Development">Web Development</option>
+                                <option value="Mobile Apps">Mobile Apps</option>
+                                <option value="Data Science">Data Science</option>
+                                <option value="UI/UX Design">UI/UX Design</option>
+                                <option value="Cyber Security">Cyber Security</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Tingkat Kesulitan</label>
+                            <select
+                                name="level"
+                                value={formData.level}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition bg-white cursor-pointer"
+                            >
+                                <option value="Beginner">Pemula (Beginner)</option>
+                                <option value="Intermediate">Menengah (Intermediate)</option>
+                                <option value="Advanced">Mahir (Advanced)</option>
+                                <option value="All Level">Semua Tingkat</option>
                             </select>
                         </div>
                     </div>
 
-                    {/* Deskripsi */}
+                    {/* 3. Deskripsi */}
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Deskripsi Singkat</label>
                         <textarea
                             name="description"
-                            rows={4}
+                            rows={5}
                             value={formData.description}
                             onChange={handleChange}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition resize-y"
                         ></textarea>
                     </div>
 
-                    {/* Harga & Status */}
+                    {/* 4. Harga, Durasi, Status */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">Harga (Rp)</label>
-                            <input
-                                name="price"
-                                type="number"
-                                value={formData.price}
-                                onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition"
-                            />
+                            <div className="relative">
+                                <span className="absolute left-3 top-3 text-gray-500">Rp</span>
+                                <input
+                                    name="price"
+                                    type="number"
+                                    value={formData.price}
+                                    onChange={handleChange}
+                                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                                />
+                            </div>
                         </div>
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">Durasi</label>
@@ -187,7 +210,7 @@ export default function EditCoursePage() {
                                 type="text"
                                 value={formData.duration}
                                 onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition"
                             />
                         </div>
                         <div>
@@ -196,7 +219,7 @@ export default function EditCoursePage() {
                                 name="status"
                                 value={formData.status}
                                 onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition bg-white"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition bg-white cursor-pointer"
                             >
                                 <option value="Draft">Draft</option>
                                 <option value="Published">Published</option>
@@ -205,7 +228,9 @@ export default function EditCoursePage() {
                         </div>
                     </div>
 
-                    {/* --- AREA UPLOAD IMAGE (PREVIEW EDIT MODE) --- */}
+                    <hr className="border-gray-100" />
+
+                    {/* 5. Area Upload Thumbnail */}
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Thumbnail Kursus</label>
 
@@ -220,7 +245,6 @@ export default function EditCoursePage() {
                         {currentImageToDisplay ? (
                             // TAMPILAN JIKA ADA GAMBAR (Entah baru atau lama)
                             <div className="relative w-full h-64 bg-gray-100 rounded-xl overflow-hidden border border-gray-200 group">
-                                {/* unoptimized: true agar bisa load gambar external dummy tanpa config next.config.js */}
                                 <Image
                                     src={currentImageToDisplay}
                                     alt="Thumbnail"
@@ -271,7 +295,7 @@ export default function EditCoursePage() {
                         )}
                     </div>
 
-                    {/* URL Video */}
+                    {/* 6. URL Video Intro */}
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Link Video Intro</label>
                         <input
@@ -279,7 +303,7 @@ export default function EditCoursePage() {
                             type="url"
                             value={formData.videoUrl}
                             onChange={handleChange}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition"
                         />
                     </div>
 

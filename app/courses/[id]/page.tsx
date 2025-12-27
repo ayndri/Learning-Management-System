@@ -1,168 +1,270 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { courses } from "../../../data/courses";
 
-export default function CourseDetailPage() {
+// --- DUMMY DATA LENGKAP ---
+const courseData = {
+    id: "1",
+    title: "Fullstack Laravel 10: Membangun E-Commerce",
+    instructor: "Budi Santoso",
+    description: "Panduan lengkap membangun aplikasi E-Commerce modern menggunakan Laravel 10 dan React.js. Kita akan membahas dari nol hingga deployment.",
+    sections: [
+        {
+            id: 1,
+            title: "Pengenalan & Persiapan",
+            lessons: [
+                {
+                    id: 101,
+                    title: "Apa itu Laravel?",
+                    type: "video",
+                    duration: "10:00",
+                    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+                    description: "Pengenalan dasar framework Laravel dan kenapa kita menggunakannya.",
+                    resources: []
+                },
+                {
+                    id: 102,
+                    title: "Instalasi Tools (XAMPP & Composer)",
+                    type: "video",
+                    duration: "15:00",
+                    videoUrl: "https://www.youtube.com/embed/kUMe1FH4CHE",
+                    description: "Persiapan lingkungan kerja lokal sebelum memulai coding.",
+                    resources: [
+                        { id: 1, name: "Panduan Instalasi.pdf", size: "1.2 MB", type: "PDF" },
+                        { id: 2, name: "Link Download Tools.txt", size: "1 KB", type: "TXT" }
+                    ]
+                },
+            ]
+        },
+        {
+            id: 2,
+            title: "Routing & Controller",
+            lessons: [
+                {
+                    id: 201,
+                    title: "Konsep Dasar Routing",
+                    type: "video",
+                    duration: "12:00",
+                    videoUrl: "https://www.youtube.com/embed/qz0aGYrrlhU",
+                    description: "Memahami cara kerja route di Laravel.",
+                    resources: [
+                        { id: 3, name: "Cheatsheet Routing.png", size: "0.5 MB", type: "IMG" }
+                    ]
+                },
+                {
+                    id: 202,
+                    title: "Kuis Pemahaman Routing",
+                    type: "quiz",
+                    duration: "5 Soal",
+                    description: "Uji pemahamanmu tentang routing sebelum lanjut ke materi Controller.",
+                    resources: []
+                },
+            ]
+        }
+    ]
+};
+
+// --- DUMMY DISKUSI ---
+const discussions = [
+    { id: 1, user: "Andi Saputra", avatar: "A", text: "Apakah materi ini cocok untuk pemula?", time: "2 jam lalu", role: "Siswa" },
+    { id: 2, user: "Budi Santoso", avatar: "B", text: "Sangat cocok, karena dimulai dari dasar.", time: "1 jam lalu", role: "Instruktur" },
+    { id: 3, user: "Siti Aminah", avatar: "S", text: "Terima kasih penjelasannya pak, sangat jelas!", time: "Baru saja", role: "Siswa" },
+];
+
+export default function CoursePlayerPage() {
+    const router = useRouter();
     const params = useParams();
-    const courseId = params.id as string;
-    const course = courses.find((c) => c.id === courseId);
 
-    // --- STATE TAB ---
-    // Default tab yang aktif adalah 'overview' (Ikhtisar)
-    const [activeTab, setActiveTab] = useState("overview");
-
-    // --- DUMMY DATA SILABUS ---
-    const syllabus = [
-        { id: 1, title: "Pengenalan & Persiapan Tools", duration: "10:00", isLocked: false, videoUrl: course?.videoUrl || "" },
-        { id: 2, title: "Struktur Dasar HTML/Code", duration: "15:30", isLocked: false, videoUrl: "https://www.youtube.com/embed/kUMe1FH4CHE" },
-        { id: 3, title: "Memahami Tag & Elemen", duration: "20:00", isLocked: false, videoUrl: "https://www.youtube.com/embed/qz0aGYrrlhU" },
-        { id: 4, title: "Studi Kasus: Membuat Portfolio", duration: "45:00", isLocked: true, videoUrl: "" },
-        { id: 5, title: "Quiz: Evaluasi Materi", duration: "05:00", isLocked: true, videoUrl: "" },
-    ];
-
-    // --- DUMMY DATA DISKUSI (KOMENTAR) ---
-    const discussions = [
-        { id: 1, user: "Budi Santoso", avatar: "B", text: "Mas, apakah materi ini cocok untuk pemula yang belum tahu coding sama sekali?", time: "2 jam yang lalu", role: "Siswa" },
-        { id: 2, user: "Admin EduFlash", avatar: "A", text: "Halo Budi, sangat cocok! Materi ini didesain dari nol.", time: "1 jam yang lalu", role: "Instruktur" },
-        { id: 3, user: "Siti Aminah", avatar: "S", text: "Menit 10:30 suaranya agak kecil ya kak, mohon diperbaiki.", time: "Baru saja", role: "Siswa" },
-    ];
-
-    // --- DUMMY DATA FILE PENDUKUNG ---
-    const resources = [
-        { id: 1, name: "Slide Presentasi Bab 1.pdf", size: "2.4 MB", type: "PDF" },
-        { id: 2, name: "Source Code Latihan.zip", size: "15 MB", type: "ZIP" },
-        { id: 3, name: "Cheatsheet HTML5.png", size: "500 KB", type: "IMG" },
-    ];
-
-    const [activeLesson, setActiveLesson] = useState(syllabus[0]);
-
-    if (!course) {
-        return <div className="min-h-screen flex items-center justify-center text-white">Kursus tidak ditemukan.</div>;
-    }
+    // State
+    const [activeLesson, setActiveLesson] = useState(courseData.sections[0].lessons[0]);
+    const [activeTab, setActiveTab] = useState<"overview" | "resources" | "discuss">("overview");
+    const [sidebarOpen, setSidebarOpen] = useState(true);
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white flex flex-col animate-fade-in-up">
+        <div className="flex h-screen bg-gray-50 text-gray-900 overflow-hidden font-sans">
 
-            {/* HEADER */}
-            <header className="h-16 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-4 lg:px-8">
-                <div className="flex items-center gap-4">
-                    <Link href="/dashboard/courses" className="text-gray-400 hover:text-white transition">
-                        &larr; Kembali
+            {/* --- SIDEBAR KURIKULUM (Light Mode) --- */}
+            <aside className={`fixed inset-y-0 left-0 z-50 w-80 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.02)]`}>
+
+                {/* Header Sidebar */}
+                <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-white">
+                    <Link href="/dashboard" className="text-xs font-bold text-gray-500 hover:text-indigo-600 flex items-center gap-1 transition">
+                        ← Kembali ke Dashboard
                     </Link>
-                    <div className="h-6 w-px bg-gray-600 hidden md:block"></div>
-                    <h1 className="font-bold text-sm md:text-lg truncate max-w-xs md:max-w-md">
-                        {course.title}
-                    </h1>
+                    <button onClick={() => setSidebarOpen(false)} className="md:hidden text-gray-500">✕</button>
                 </div>
-                <div className="hidden md:flex items-center gap-2 text-xs font-semibold text-gray-400">
-                    <span>Progress: 20%</span>
-                    <div className="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
-                        <div className="h-full bg-green-500 w-1/5"></div>
-                    </div>
-                </div>
-            </header>
 
-            <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-
-                {/* PLAYER AREA */}
-                <div className="flex-1 overflow-y-auto bg-black flex flex-col custom-scrollbar">
-                    <div className="aspect-video w-full bg-black relative">
-                        <iframe
-                            key={activeLesson.id}
-                            width="100%"
-                            height="100%"
-                            src={activeLesson.videoUrl}
-                            title={activeLesson.title}
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            className="absolute inset-0"
-                        ></iframe>
-                    </div>
-
-                    <div className="p-6 md:p-8 max-w-4xl mx-auto w-full pb-20">
-                        <div className="flex items-start justify-between gap-4 mb-6">
-                            <div>
-                                <h2 className="text-2xl font-bold mb-2">{activeLesson.title}</h2>
-                                <p className="text-gray-400 text-sm">Episode {activeLesson.id} • {activeLesson.duration}</p>
+                {/* Content Sidebar */}
+                <div className="flex-1 overflow-y-auto custom-scrollbar">
+                    {courseData.sections.map((section, index) => (
+                        <div key={section.id} className="border-b border-gray-100">
+                            <div className="px-5 py-4 bg-gray-50">
+                                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Bab {index + 1}: {section.title}</h3>
                             </div>
-                            <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-semibold text-sm transition shadow-lg shadow-indigo-500/20">
-                                Tandai Selesai
+                            <div>
+                                {section.lessons.map((lesson) => {
+                                    const isActive = activeLesson.id === lesson.id;
+                                    return (
+                                        <button
+                                            key={lesson.id}
+                                            onClick={() => {
+                                                setActiveLesson(lesson);
+                                                if (window.innerWidth < 768) setSidebarOpen(false);
+                                            }}
+                                            className={`w-full text-left px-5 py-4 flex items-start gap-3 transition border-l-4 ${isActive ? 'bg-indigo-50 border-indigo-600' : 'border-transparent hover:bg-gray-50'}`}
+                                        >
+                                            <div className={`mt-0.5 text-xs ${isActive ? 'text-indigo-600' : 'text-gray-400'}`}>
+                                                {lesson.type === 'video' ? '📺' : '📝'}
+                                            </div>
+                                            <div>
+                                                <p className={`text-sm font-medium leading-tight mb-1 ${isActive ? 'text-indigo-700' : 'text-gray-700'}`}>
+                                                    {lesson.title}
+                                                </p>
+                                                <p className="text-[10px] text-gray-400">{lesson.duration}</p>
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </aside>
+
+            {/* --- MAIN CONTENT AREA --- */}
+            <main className="flex-1 flex flex-col h-full overflow-hidden relative bg-white">
+
+                {/* Mobile Header Toggle */}
+                <div className="md:hidden bg-white border-b border-gray-200 p-4 flex justify-between items-center shadow-sm z-20 relative">
+                    <h1 className="font-bold text-gray-800 truncate pr-4 text-sm">{activeLesson.title}</h1>
+                    <button onClick={() => setSidebarOpen(true)} className="text-indigo-600 font-bold text-sm">
+                        ☰ Menu
+                    </button>
+                </div>
+
+                {/* Scrollable Content */}
+                <div className="flex-1 overflow-y-auto custom-scrollbar">
+
+                    {/* 1. PLAYER AREA */}
+                    <div className="w-full bg-black aspect-video relative shadow-lg">
+                        {activeLesson.type === 'video' ? (
+                            <iframe
+                                src={activeLesson.videoUrl}
+                                title={activeLesson.title}
+                                className="w-full h-full"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                            ></iframe>
+                        ) : (
+                            // Tampilan Jika KUIS (Light Mode)
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50 text-gray-900 text-center p-8">
+                                <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-4xl mb-6 shadow-md border border-gray-100 animate-bounce-slow">📝</div>
+                                <h2 className="text-3xl font-bold mb-2 text-gray-800">Saatnya Kuis!</h2>
+                                <p className="text-gray-500 mb-8 max-w-md leading-relaxed">Uji pemahaman materi Anda di bab ini dengan mengerjakan kuis singkat.</p>
+                                <Link
+                                    href={`/quiz/${activeLesson.id}`}
+                                    className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-lg shadow-indigo-200 transform hover:-translate-y-1"
+                                >
+                                    Mulai Kerjakan Kuis
+                                </Link>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* 2. CONTENT DETAILS */}
+                    <div className="max-w-5xl mx-auto p-6 md:p-10">
+
+                        {/* Header Lesson */}
+                        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
+                            <div>
+                                <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2">{activeLesson.title}</h1>
+                                <p className="text-gray-500 text-sm">Bagian dari: <span className="text-indigo-600 font-bold">{courseData.title}</span></p>
+                            </div>
+                            <button className="flex-shrink-0 px-6 py-2.5 bg-indigo-50 text-indigo-700 font-bold rounded-xl hover:bg-indigo-100 transition border border-indigo-100">
+                                Tandai Selesai ✓
                             </button>
                         </div>
 
-                        {/* --- TAB NAVIGATION --- */}
-                        <div className="flex gap-8 mt-8 border-b border-gray-700">
-                            <button
-                                onClick={() => setActiveTab("overview")}
-                                className={`pb-4 font-medium text-sm transition-all relative ${activeTab === "overview" ? "text-indigo-400 border-b-2 border-indigo-400" : "text-gray-400 hover:text-gray-200"
-                                    }`}
-                            >
-                                Ikhtisar
-                            </button>
-                            <button
-                                onClick={() => setActiveTab("discuss")}
-                                className={`pb-4 font-medium text-sm transition-all relative ${activeTab === "discuss" ? "text-indigo-400 border-b-2 border-indigo-400" : "text-gray-400 hover:text-gray-200"
-                                    }`}
-                            >
-                                Diskusi Q&A <span className="ml-1 text-xs bg-gray-700 text-white px-1.5 rounded-full">3</span>
-                            </button>
-                            <button
-                                onClick={() => setActiveTab("files")}
-                                className={`pb-4 font-medium text-sm transition-all relative ${activeTab === "files" ? "text-indigo-400 border-b-2 border-indigo-400" : "text-gray-400 hover:text-gray-200"
-                                    }`}
-                            >
-                                File Pendukung
-                            </button>
+                        {/* Tabs Navigation */}
+                        <div className="flex gap-8 border-b border-gray-200 mb-8 overflow-x-auto">
+                            {['overview', 'resources', 'discuss'].map((tab) => (
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab as any)}
+                                    className={`pb-4 text-sm font-bold capitalize transition whitespace-nowrap relative ${activeTab === tab
+                                        ? 'text-indigo-600 border-b-2 border-indigo-600'
+                                        : 'text-gray-500 hover:text-gray-800'
+                                        }`}
+                                >
+                                    {tab === 'overview' ? 'Ikhtisar' : tab === 'resources' ? 'File Pendukung' : 'Diskusi Q&A'}
+                                    {tab === 'resources' && activeLesson.resources && activeLesson.resources.length > 0 && (
+                                        <span className="ml-2 bg-gray-100 text-gray-600 text-[10px] px-2 py-0.5 rounded-full border border-gray-200 font-bold">{activeLesson.resources.length}</span>
+                                    )}
+                                </button>
+                            ))}
                         </div>
 
-                        {/* --- TAB CONTENT AREA --- */}
-                        <div className="mt-6 min-h-[200px]">
+                        {/* Tab Contents */}
+                        <div className="min-h-[300px]">
 
-                            {/* 1. KONTEN IKHTISAR */}
-                            {activeTab === "overview" && (
-                                <div className="animate-fade-in-up">
-                                    <h3 className="font-bold text-lg mb-4 text-white">Deskripsi Materi</h3>
-                                    <p className="text-gray-300 leading-relaxed text-sm md:text-base mb-6">
-                                        {course.description} Di video ini kita akan membahas secara mendalam tentang teknik dasar
-                                        yang diperlukan untuk menguasai topik ini. Pastikan Anda sudah menonton video sebelumnya agar tidak bingung.
-                                        <br /><br />
-                                        <strong>Apa yang akan Anda pelajari:</strong>
-                                    </p>
-                                    <ul className="list-disc list-inside text-gray-300 text-sm space-y-2 mb-8 ml-2">
-                                        <li>Memahami konsep dasar framework.</li>
-                                        <li>Instalasi tools yang dibutuhkan.</li>
-                                        <li>Best practice dalam penulisan kode.</li>
-                                    </ul>
-
-                                    <div className="p-6 bg-gray-800/50 rounded-xl border border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            {/* A. IKHTISAR */}
+                            {activeTab === 'overview' && (
+                                <div className="animate-fade-in-up text-gray-600 leading-relaxed space-y-4">
+                                    <p className="text-lg text-gray-900 font-bold">Tentang Materi Ini</p>
+                                    <p>{activeLesson.description}</p>
+                                    <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-xl mt-4 flex items-center gap-3">
+                                        <span className="text-2xl">👨‍🏫</span>
                                         <div>
-                                            <p className="font-bold text-white">Sudah paham materi ini?</p>
-                                            <p className="text-sm text-gray-400">Uji pemahamanmu dengan kuis singkat.</p>
+                                            <p className="text-xs text-gray-500 uppercase font-bold">Instruktur</p>
+                                            <p className="text-sm font-bold text-gray-900">{courseData.instructor}</p>
                                         </div>
-                                        <Link href="/dashboard/quiz" className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm font-semibold transition border border-gray-600 w-full sm:w-auto text-center">
-                                            Mulai Kuis
-                                        </Link>
                                     </div>
                                 </div>
                             )}
 
-                            {/* 2. KONTEN DISKUSI */}
-                            {activeTab === "discuss" && (
-                                <div className="space-y-6 animate-fade-in-up">
+                            {/* B. FILE PENDUKUNG */}
+                            {activeTab === 'resources' && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in-up">
+                                    {(!activeLesson.resources || activeLesson.resources.length === 0) ? (
+                                        <div className="col-span-2 text-center py-12 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl">
+                                            <p className="text-gray-400 font-medium">Tidak ada file pendukung untuk materi ini.</p>
+                                        </div>
+                                    ) : (
+                                        activeLesson.resources.map((file) => (
+                                            <div key={file.id} className="bg-white border border-gray-200 p-4 rounded-xl flex items-center justify-between hover:shadow-md transition group cursor-pointer hover:border-indigo-200">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 font-bold text-xs border border-indigo-100">
+                                                        {file.type}
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-bold text-gray-800 text-sm group-hover:text-indigo-600 transition">{file.name}</p>
+                                                        <p className="text-xs text-gray-500">{file.size}</p>
+                                                    </div>
+                                                </div>
+                                                <button className="text-gray-400 hover:text-indigo-600 transition p-2 rounded-full hover:bg-gray-100">
+                                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                                                </button>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            )}
+
+                            {/* C. DISKUSI */}
+                            {activeTab === 'discuss' && (
+                                <div className="space-y-8 animate-fade-in-up">
                                     {/* Input Komentar */}
-                                    <div className="flex gap-4 mb-8">
-                                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex-shrink-0"></div>
+                                    <div className="flex gap-4">
+                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex-shrink-0 shadow-sm"></div>
                                         <div className="flex-1">
                                             <textarea
                                                 placeholder="Tulis pertanyaan atau diskusi..."
-                                                className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition resize-none h-24"
+                                                className="w-full bg-white border border-gray-200 rounded-xl p-4 text-sm text-gray-900 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition resize-none h-24 placeholder-gray-400 shadow-sm"
                                             ></textarea>
-                                            <div className="flex justify-end mt-2">
-                                                <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition">
+                                            <div className="flex justify-end mt-3">
+                                                <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition shadow-lg shadow-indigo-200">
                                                     Kirim Komentar
                                                 </button>
                                             </div>
@@ -170,99 +272,32 @@ export default function CourseDetailPage() {
                                     </div>
 
                                     {/* List Komentar */}
-                                    {discussions.map((chat) => (
-                                        <div key={chat.id} className="flex gap-4">
-                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0 ${chat.role === 'Instruktur' ? 'bg-indigo-600' : 'bg-gray-700'}`}>
-                                                {chat.avatar}
-                                            </div>
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <span className="font-bold text-sm text-gray-200">{chat.user}</span>
-                                                    {chat.role === 'Instruktur' && (
-                                                        <span className="bg-indigo-500/20 text-indigo-300 text-[10px] px-2 py-0.5 rounded border border-indigo-500/30">Instruktur</span>
-                                                    )}
-                                                    <span className="text-xs text-gray-500">• {chat.time}</span>
+                                    <div className="space-y-6">
+                                        {discussions.map((chat) => (
+                                            <div key={chat.id} className="flex gap-4 group">
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm flex-shrink-0 shadow-sm ${chat.role === 'Instruktur' ? 'bg-indigo-600' : 'bg-gray-400'}`}>
+                                                    {chat.avatar}
                                                 </div>
-                                                <p className="text-sm text-gray-400 leading-relaxed">{chat.text}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            {/* 3. KONTEN FILE PENDUKUNG */}
-                            {activeTab === "files" && (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in-up">
-                                    {resources.map((file) => (
-                                        <div key={file.id} className="bg-gray-800 border border-gray-700 p-4 rounded-xl flex items-center justify-between hover:bg-gray-750 transition group cursor-pointer">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center text-gray-400 font-bold text-xs group-hover:text-white group-hover:bg-indigo-600 transition">
-                                                    {file.type}
-                                                </div>
-                                                <div>
-                                                    <p className="font-medium text-sm text-gray-200 group-hover:text-white transition">{file.name}</p>
-                                                    <p className="text-xs text-gray-500">{file.size}</p>
+                                                <div className="flex-1 bg-gray-50 p-4 rounded-xl rounded-tl-none border border-gray-100">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <span className="font-bold text-gray-900 text-sm">{chat.user}</span>
+                                                        {chat.role === 'Instruktur' && (
+                                                            <span className="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded border border-indigo-200 font-bold">Instruktur</span>
+                                                        )}
+                                                        <span className="text-xs text-gray-400">• {chat.time}</span>
+                                                    </div>
+                                                    <p className="text-gray-600 text-sm leading-relaxed">{chat.text}</p>
                                                 </div>
                                             </div>
-                                            <button className="text-gray-500 hover:text-white p-2">
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                                            </button>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
                             )}
 
                         </div>
                     </div>
                 </div>
-
-                {/* SIDEBAR PLAYLIST (KANAN) */}
-                <div className="w-full lg:w-96 bg-gray-900 border-l border-gray-800 flex flex-col h-[50vh] lg:h-auto overflow-hidden">
-                    <div className="p-4 border-b border-gray-800 bg-gray-850">
-                        <h3 className="font-bold text-white">Daftar Materi</h3>
-                        <p className="text-xs text-gray-400 mt-1">5 Episode (1j 30m)</p>
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto custom-scrollbar">
-                        {syllabus.map((item, index) => {
-                            const isActive = activeLesson.id === item.id;
-                            return (
-                                <button
-                                    key={item.id}
-                                    disabled={item.isLocked}
-                                    onClick={() => setActiveLesson(item)}
-                                    className={`w-full text-left p-4 flex gap-4 transition-colors border-b border-gray-800 ${isActive
-                                        ? "bg-indigo-600/10 border-l-4 border-l-indigo-500"
-                                        : "hover:bg-gray-800 border-l-4 border-l-transparent"
-                                        } ${item.isLocked ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-                                >
-                                    <div className="flex-shrink-0 mt-1">
-                                        {item.isLocked ? (
-                                            <span className="w-6 h-6 flex items-center justify-center bg-gray-800 rounded text-gray-500 text-xs">🔒</span>
-                                        ) : isActive ? (
-                                            <span className="w-6 h-6 flex items-center justify-center bg-indigo-600 rounded-full text-white text-xs animate-pulse">▶</span>
-                                        ) : (
-                                            <span className="w-6 h-6 flex items-center justify-center bg-gray-700 rounded-full text-gray-400 text-xs">{index + 1}</span>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <p className={`text-sm font-medium line-clamp-2 ${isActive ? "text-indigo-400" : "text-gray-200"}`}>
-                                            {item.title}
-                                        </p>
-                                        <div className="flex items-center gap-2 mt-1.5">
-                                            <span className="text-[10px] text-gray-500 flex items-center gap-1">
-                                                📄 Video • {item.duration}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-
-            </div>
+            </main>
         </div>
     );
 }
