@@ -217,8 +217,9 @@ export default function LandingPage() {
 
                   <div className="mt-auto pt-4 border-t border-dashed border-gray-100 flex items-center justify-between">
                     <span className="text-lg font-black text-gray-900">{course.price}</span>
-                    <Link href="/login" className="text-indigo-600 font-bold text-sm hover:underline">
-                      Akses Materi &rarr;
+                    {/* Mengarah ke Halaman Detail Kursus yang sudah dibuat */}
+                    <Link href={`/courses/${course.id}`} className="text-indigo-600 font-bold text-sm hover:underline">
+                      Lihat Detail &rarr;
                     </Link>
                   </div>
                 </div>
