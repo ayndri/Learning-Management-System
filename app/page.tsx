@@ -66,16 +66,15 @@ export default function LandingPage() {
             <div className="hidden md:flex items-center space-x-8">
               {[
                 { name: 'Beranda', href: '/' },
-                { name: 'Katalog', href: '/courses' }, // Arahkan ke Halaman Katalog
-                { name: 'Bootcamp', href: '#' },       // Placeholder (belum ada)
-                { name: 'Jadi Mentor', href: '/teach' }, // Arahkan ke Halaman Teach
+                { name: 'Katalog', href: '/courses' },
+                { name: 'Workshop', href: '/workshop' },       // Menu Baru
+                { name: 'Jalur Belajar', href: '/roadmap' },   // Menu Baru
               ].map((item) => (
                 <Link key={item.name} href={item.href} className="text-sm font-semibold text-gray-600 hover:text-indigo-600 transition relative group">
                   {item.name}
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-600 transition-all group-hover:w-full"></span>
                 </Link>
               ))}
-
               <div className="h-6 w-px bg-gray-200"></div>
 
               <Link href="/login" className="text-sm font-bold text-gray-900 hover:text-indigo-600 transition">Masuk</Link>

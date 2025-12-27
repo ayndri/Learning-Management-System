@@ -33,7 +33,7 @@ const allCourses = [
         instructor: "Rizky Dev",
         price: 200000,
         rating: 4.7,
-        image: "https://images.unsplash.com/photo-1586717791821-3f44a5638d48?w=800&q=80",
+        image: "https://images.unsplash.com/photo-1653647054667-c99dc7f914ef?w=800&q=80",
         category: "Design",
         level: "Beginner",
         duration: "12 Jam"
@@ -55,7 +55,7 @@ const allCourses = [
         instructor: "Budi Santoso",
         price: 300000,
         rating: 4.9,
-        image: "https://images.unsplash.com/photo-1627398242450-8df41780ee77?w=800&q=80",
+        image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80",
         category: "Backend",
         level: "Advanced",
         duration: "18 Jam"
@@ -104,9 +104,11 @@ export default function CourseCatalogPage() {
                         <div className="w-8 h-8 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md">⚡</div>
                         <span className="font-extrabold text-xl tracking-tight text-gray-900">Edu<span className="text-indigo-600">Flash</span>.</span>
                     </Link>
-                    <div className="flex gap-4">
-                        <Link href="/login" className="text-sm font-bold text-gray-600 hover:text-indigo-600 transition">Masuk</Link>
-                        <Link href="/register" className="px-4 py-2 bg-gray-900 text-white rounded-full text-sm font-bold hover:bg-indigo-600 transition shadow-md">Daftar</Link>
+                    <div className="flex gap-4 items-center justify-center">
+                        <Link href="/login" className="text-sm font-bold text-gray-900 hover:text-indigo-600 transition">Masuk</Link>
+                        <Link href="/register" className="bg-gray-900 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-indigo-600 transition shadow-lg shadow-gray-200 hover:shadow-indigo-200 transform hover:-translate-y-0.5">
+                            Daftar Gratis
+                        </Link>
                     </div>
                 </div>
             </nav>
@@ -128,7 +130,13 @@ export default function CourseCatalogPage() {
                                 placeholder="Cari judul materi..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition bg-gray-50 group-hover:bg-white"
+                                style={
+                                    {
+                                        paddingLeft: '48px',
+                                        paddingRight: '12px',
+                                    }
+                                }
+                                className="w-full py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition bg-gray-50 group-hover:bg-white"
                             />
                             <svg className="w-5 h-5 text-gray-400 absolute left-4 top-3.5 group-hover:text-indigo-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                         </div>

@@ -29,6 +29,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <AdminNavItem href="/admin/dashboard/courses" active={pathname.includes("/courses")} icon="📚">Kelola Kursus</AdminNavItem>
                     <AdminNavItem href="/admin/dashboard/reports" active={pathname.includes("/reports")} icon="📑">Laporan Keuangan</AdminNavItem>
                     <AdminNavItem href="/admin/dashboard/settings" active={pathname.includes("/settings")} icon="⚙️">Pengaturan Sistem</AdminNavItem>
+                    <AdminNavItem href="/admin/dashboard/workshops" active={pathname.includes("/workshops")} icon="📹">Kelola Workshop</AdminNavItem>
+                    <AdminNavItem
+                        href="/admin/dashboard/roadmaps"
+                        active={pathname.includes("/roadmaps")}
+                        icon="🗺️"
+                    >
+                        Kelola Roadmap
+                    </AdminNavItem>
                 </nav>
 
                 <div className="p-4 border-t border-gray-800">
