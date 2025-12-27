@@ -6,192 +6,103 @@ import { useState } from "react";
 
 export default function RegisterPage() {
     const router = useRouter();
-
-    // State Form
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-
-    // State UI
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState(false);
 
-    const handleRegister = async (e: React.FormEvent) => {
+    const handleRegister = (e: React.FormEvent) => {
         e.preventDefault();
-        setError("");
         setIsLoading(true);
 
-        // 1. Validasi Password Match
-        if (password !== confirmPassword) {
-            setError("Password dan Konfirmasi Password tidak sama!");
-            setIsLoading(false);
-            return;
-        }
-
-        // 2. Validasi Panjang Password
-        if (password.length < 6) {
-            setError("Password minimal 6 karakter.");
-            setIsLoading(false);
-            return;
-        }
-
-        // --- SIMULASI REGISTER ---
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-
-        // Sukses
-        setIsLoading(false);
-        setSuccess(true);
-
-        // Redirect ke Login setelah 2 detik
+        // Simulasi Register
         setTimeout(() => {
-            router.push("/login");
-        }, 2000);
+            setIsLoading(false);
+            // Setelah daftar, biasanya auto-login dan ke Dashboard
+            router.push("/dashboard");
+        }, 1500);
     };
 
     return (
-        <div className="min-h-screen w-full flex bg-white">
-            {/* --- BAGIAN KIRI (Artistik - Nuansa Cyan/Teal) --- */}
-            <div className="hidden lg:flex w-1/2 bg-teal-900 relative items-center justify-center overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-teal-600 to-emerald-800 opacity-90 z-10"></div>
-                {/* Dekorasi Blob */}
-                <div className="absolute top-20 left-20 w-72 h-72 bg-emerald-400 rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-blob"></div>
-                <div className="absolute bottom-20 right-20 w-72 h-72 bg-cyan-400 rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-blob animation-delay-2000"></div>
+        <div className="min-h-screen flex bg-white font-sans text-gray-900">
 
-                <div className="relative z-20 text-white p-12 max-w-lg">
-                    <h2 className="text-5xl font-extrabold mb-6 leading-tight">Bergabung <br /> Sekarang! 🚀</h2>
-                    <p className="text-teal-100 text-lg mb-8">
-                        Dapatkan akses ke ribuan materi koding premium secara gratis. Investasi terbaik untuk masa depanmu dimulai di sini.
+            {/* --- LEFT SIDE: FORM --- */}
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+                <div className="max-w-md w-full">
+
+                    <div className="mb-8">
+                        <Link href="/" className="font-extrabold text-2xl tracking-tight text-gray-900 flex items-center gap-1 mb-8">
+                            ⚡ Edu<span className="text-indigo-600">Flash</span>.
+                        </Link>
+                        <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Buat Akun Baru 🚀</h1>
+                        <p className="text-gray-500">Mulai perjalanan belajarmu hari ini, gratis!</p>
+                    </div>
+
+                    <form onSubmit={handleRegister} className="space-y-5">
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Nama Lengkap</label>
+                            <input
+                                type="text"
+                                required
+                                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                                placeholder="John Doe"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Email</label>
+                            <input
+                                type="email"
+                                required
+                                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                                placeholder="nama@email.com"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Password</label>
+                            <input
+                                type="password"
+                                required
+                                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                                placeholder="••••••••"
+                            />
+                            <p className="text-xs text-gray-400 mt-2">Minimal 8 karakter.</p>
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full py-3.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-500/30 disabled:opacity-70 flex justify-center items-center"
+                        >
+                            {isLoading ? (
+                                <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            ) : "Daftar Akun"}
+                        </button>
+                    </form>
+
+                    <p className="mt-8 text-center text-sm text-gray-500">
+                        Sudah punya akun? <Link href="/login" className="font-bold text-indigo-600 hover:underline">Masuk di sini</Link>
                     </p>
 
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-4 bg-white/10 p-4 rounded-xl border border-white/20 backdrop-blur-sm">
-                            <span className="text-2xl">⚡</span>
-                            <p className="font-medium">Update Materi Tiap Minggu</p>
-                        </div>
-                        <div className="flex items-center gap-4 bg-white/10 p-4 rounded-xl border border-white/20 backdrop-blur-sm">
-                            <span className="text-2xl">🏆</span>
-                            <p className="font-medium">Sertifikat Kompetensi Resmi</p>
-                        </div>
+                </div>
+            </div>
+
+            {/* --- RIGHT SIDE: IMAGE & QUOTE --- */}
+            <div className="hidden lg:flex w-1/2 bg-indigo-900 relative items-center justify-center overflow-hidden">
+                <div className="absolute inset-0 opacity-40">
+                    <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1600&q=80" alt="Register Banner" className="w-full h-full object-cover" />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-indigo-900/80 to-purple-900/50"></div>
+
+                <div className="relative z-10 p-12 text-white max-w-lg text-center">
+                    <h2 className="text-4xl font-extrabold mb-6">Bergabung dengan 50,000+ Siswa Lainnya</h2>
+                    <p className="text-indigo-200 text-lg leading-relaxed">
+                        Akses materi berkualitas, mentor berpengalaman, dan komunitas yang suportif untuk menunjang karirmu.
+                    </p>
+                    <div className="mt-8 flex justify-center -space-x-4">
+                        {[1, 2, 3, 4, 5].map(i => (
+                            <div key={i} className="w-12 h-12 rounded-full border-4 border-indigo-900 bg-gray-200" />
+                        ))}
                     </div>
                 </div>
             </div>
 
-            {/* --- BAGIAN KANAN (Form Register) --- */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-12 overflow-y-auto">
-                <div className="w-full max-w-md">
-
-                    {/* Header Mobile Only (Biar user tau ini halaman apa di HP) */}
-                    <div className="lg:hidden mb-8 text-center">
-                        <h1 className="text-3xl font-bold text-gray-900">Buat Akun Baru</h1>
-                        <p className="text-gray-500">Mulai belajar gratis hari ini.</p>
-                    </div>
-
-                    <div className="hidden lg:block mb-8">
-                        <h1 className="text-3xl font-bold text-gray-900">Daftar Akun</h1>
-                        <p className="text-gray-500 mt-2">Isi data diri Anda untuk membuat akun baru.</p>
-                    </div>
-
-                    {/* Notifikasi Error */}
-                    {error && (
-                        <div className="mb-6 bg-red-50 text-red-600 p-3 rounded-lg text-sm border border-red-200 flex items-center gap-2 animate-pulse">
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
-                            {error}
-                        </div>
-                    )}
-
-                    {/* Notifikasi Sukses */}
-                    {success ? (
-                        <div className="text-center py-12 space-y-4 animate-fade-in-up">
-                            <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-4">
-                                🎉
-                            </div>
-                            <h2 className="text-2xl font-bold text-gray-900">Pendaftaran Berhasil!</h2>
-                            <p className="text-gray-500">Akun Anda telah dibuat. Mengalihkan ke halaman login...</p>
-                            <div className="w-full bg-gray-100 h-1.5 rounded-full mt-4 overflow-hidden">
-                                <div className="h-full bg-green-500 animate-[width_2s_ease-out_forwards]" style={{ width: '0%' }}></div>
-                            </div>
-                        </div>
-                    ) : (
-                        <form className="space-y-5" onSubmit={handleRegister}>
-                            {/* Nama Lengkap */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
-                                <input
-                                    type="text"
-                                    required
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    placeholder="Contoh: Rizky Developer"
-                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all text-gray-900"
-                                />
-                            </div>
-
-                            {/* Email */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Alamat Email</label>
-                                <input
-                                    type="email"
-                                    required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="nama@email.com"
-                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all text-gray-900"
-                                />
-                            </div>
-
-                            {/* Password Group */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                                    <input
-                                        type="password"
-                                        required
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        placeholder="Min. 6 karakter"
-                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all text-gray-900"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Ulangi Password</label>
-                                    <input
-                                        type="password"
-                                        required
-                                        value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                        placeholder="••••••••"
-                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all text-gray-900"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex items-start gap-2 pt-2">
-                                <input type="checkbox" id="terms" required className="mt-1 w-4 h-4 text-teal-600 rounded border-gray-300 focus:ring-teal-500" />
-                                <label htmlFor="terms" className="text-sm text-gray-500">
-                                    Saya menyetujui <a href="#" className="text-teal-600 hover:underline">Syarat & Ketentuan</a> serta <a href="#" className="text-teal-600 hover:underline">Kebijakan Privasi</a>.
-                                </label>
-                            </div>
-
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="w-full flex justify-center py-3 px-4 rounded-lg text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors shadow-lg shadow-teal-200 disabled:bg-teal-400"
-                            >
-                                {isLoading ? "Memproses..." : "Buat Akun Sekarang"}
-                            </button>
-
-                            <p className="text-center text-sm text-gray-600 mt-4">
-                                Sudah punya akun?{' '}
-                                <Link href="/login" className="font-bold text-teal-600 hover:text-teal-500 hover:underline">
-                                    Masuk di sini
-                                </Link>
-                            </p>
-                        </form>
-                    )}
-                </div>
-            </div>
         </div>
     );
 }
