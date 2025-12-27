@@ -62,14 +62,22 @@ export default function LandingPage() {
             </div>
 
             {/* Desktop Menu */}
+            {/* Desktop Menu */}
             <div className="hidden md:flex items-center space-x-8">
-              {['Beranda', 'Katalog', 'Bootcamp', 'Mentoring'].map((item) => (
-                <Link key={item} href={`#${item.toLowerCase()}`} className="text-sm font-semibold text-gray-600 hover:text-indigo-600 transition relative group">
-                  {item}
+              {[
+                { name: 'Beranda', href: '/' },
+                { name: 'Katalog', href: '/courses' }, // Arahkan ke Halaman Katalog
+                { name: 'Bootcamp', href: '#' },       // Placeholder (belum ada)
+                { name: 'Jadi Mentor', href: '/teach' }, // Arahkan ke Halaman Teach
+              ].map((item) => (
+                <Link key={item.name} href={item.href} className="text-sm font-semibold text-gray-600 hover:text-indigo-600 transition relative group">
+                  {item.name}
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-600 transition-all group-hover:w-full"></span>
                 </Link>
               ))}
+
               <div className="h-6 w-px bg-gray-200"></div>
+
               <Link href="/login" className="text-sm font-bold text-gray-900 hover:text-indigo-600 transition">Masuk</Link>
               <Link href="/register" className="bg-gray-900 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-indigo-600 transition shadow-lg shadow-gray-200 hover:shadow-indigo-200 transform hover:-translate-y-0.5">
                 Daftar Gratis
