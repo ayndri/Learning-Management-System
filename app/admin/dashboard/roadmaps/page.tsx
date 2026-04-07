@@ -1,45 +1,46 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-
-// --- DUMMY DATA ROADMAP ---
-const initialRoadmaps = [
-    {
-        id: 1,
-        title: "Fullstack Laravel Mastery",
-        price: 750000,
-        coursesCount: 5,
-        students: 120,
-        status: "Active", // Active, Draft
-        image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=100&q=80"
-    },
-    {
-        id: 2,
-        title: "Modern Frontend dengan React & Next.js",
-        price: 850000,
-        coursesCount: 6,
-        students: 85,
-        status: "Active",
-        image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=100&q=80"
-    },
-    {
-        id: 3,
-        title: "Mobile App Developer (Flutter)",
-        price: 600000,
-        coursesCount: 4,
-        students: 45,
-        status: "Draft",
-        image: "https://images.unsplash.com/photo-1556742102-fab0303bb7fd?w=100&q=80"
-    }
-];
+import { useState, useEffect } from "react";
+import type { Roadmap } from "@/lib/db";
 
 export default function AdminRoadmapsPage() {
-    const [roadmaps, setRoadmaps] = useState(initialRoadmaps);
+    const [roadmaps, setRoadmaps] = useState<Roadmap[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-    const handleDelete = (id: number) => {
+    const showToast = (message: string, type: 'success' | 'error') => {
+        setToast({ message, type });
+        setTimeout(() => setToast(null), 3000);
+    };
+
+    const fetchRoadmaps = async () => {
+        try {
+            setIsLoading(true);
+            const res = await fetch('/api/roadmaps');
+            const json = await res.json();
+            if (json.success) setRoadmaps(json.data);
+        } catch (err) {
+            console.error("Failed to fetch roadmaps:", err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => { fetchRoadmaps(); }, []);
+
+    const handleDelete = async (id: string) => {
         if (confirm("Hapus roadmap ini? Kursus di dalamnya TIDAK akan terhapus.")) {
-            setRoadmaps(roadmaps.filter(r => r.id !== id));
+            try {
+                const res = await fetch(`/api/roadmaps/${id}`, { method: 'DELETE' });
+                const json = await res.json();
+                if (json.success) {
+                    setRoadmaps(roadmaps.filter(r => r.id !== id));
+                    showToast("Roadmap berhasil dihapus!", 'success');
+                }
+            } catch {
+                showToast("Gagal menghapus roadmap.", 'error');
+            }
         }
     };
 
@@ -74,10 +75,17 @@ export default function AdminRoadmapsPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {roadmaps.map((map) => (
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan={5} className="py-10 text-center">
+                                        <div className="flex flex-col items-center justify-center space-y-3">
+                                            <div className="w-8 h-8 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin"></div>
+                                            <p className="text-gray-400 text-sm font-medium">Memuat data roadmap...</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : roadmaps.map((map) => (
                                 <tr key={map.id} className="hover:bg-gray-50 transition group">
-
-                                    {/* Info */}
                                     <td className="px-6 py-4">
                                         <div className="flex gap-4 items-center">
                                             <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
@@ -89,20 +97,14 @@ export default function AdminRoadmapsPage() {
                                             </div>
                                         </div>
                                     </td>
-
-                                    {/* Isi Paket */}
                                     <td className="px-6 py-4">
                                         <span className="bg-indigo-50 text-indigo-700 px-2 py-1 rounded-md text-xs font-bold border border-indigo-100">
                                             {map.coursesCount} Kursus
                                         </span>
                                     </td>
-
-                                    {/* Harga */}
                                     <td className="px-6 py-4">
                                         <p className="font-bold text-gray-900">Rp {map.price.toLocaleString('id-ID')}</p>
                                     </td>
-
-                                    {/* Status */}
                                     <td className="px-6 py-4">
                                         <span className={`inline-flex items-center px-3 py-2 rounded-full text-xs font-bold border ${map.status === 'Active' ? 'bg-green-50 text-green-700 border-green-200' :
                                             'bg-gray-100 text-gray-600 border-gray-200'
@@ -110,17 +112,8 @@ export default function AdminRoadmapsPage() {
                                             {map.status}
                                         </span>
                                     </td>
-
-                                    {/* Aksi */}
                                     <td className="px-6 py-4 text-right">
                                         <div className="flex justify-end gap-2">
-                                            <Link
-                                                href={`/admin/dashboard/roadmaps/${map.id}/edit`}
-                                                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                                                title="Edit"
-                                            >
-                                                ✏️
-                                            </Link>
                                             <button
                                                 onClick={() => handleDelete(map.id)}
                                                 className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
@@ -134,8 +127,24 @@ export default function AdminRoadmapsPage() {
                             ))}
                         </tbody>
                     </table>
+
+                    {!isLoading && roadmaps.length === 0 && (
+                        <div className="text-center py-12 text-gray-500">
+                            <p className="text-4xl mb-3">🗺️</p>
+                            <p className="font-medium">Belum ada roadmap tersedia.</p>
+                            <p className="text-sm text-gray-400 mt-1">Klik "Buat Roadmap Baru" untuk menambahkan.</p>
+                        </div>
+                    )}
                 </div>
             </div>
+
+            {/* TOAST */}
+            {toast && (
+                <div className={`fixed bottom-5 right-5 px-6 py-3 rounded-lg shadow-xl font-medium text-sm z-50 flex items-center gap-3 animate-fade-in-up ${toast.type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
+                    <span>{toast.type === 'success' ? '✅' : '❌'}</span>
+                    {toast.message}
+                </div>
+            )}
         </div>
     );
 }

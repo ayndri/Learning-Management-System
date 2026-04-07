@@ -3,7 +3,7 @@
 import { Poppins } from "next/font/google";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // Setup Font
 const poppins = Poppins({
@@ -11,22 +11,66 @@ const poppins = Poppins({
     weight: ["400", "500", "600", "700"]
 });
 
+interface UserSession {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+}
+
 export default function DashboardLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
     const router = useRouter();
-    const pathname = usePathname(); // Untuk mendeteksi URL aktif
+    const pathname = usePathname();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [user, setUser] = useState<UserSession | null>(null);
+    const [isChecking, setIsChecking] = useState(true);
+
+    // AUTH GUARD: Cek apakah sudah login
+    useEffect(() => {
+        try {
+            const session = localStorage.getItem("user_session");
+            if (!session) {
+                router.replace("/login");
+                return;
+            }
+            const parsed = JSON.parse(session);
+            if (!parsed || !parsed.id) {
+                router.replace("/login");
+                return;
+            }
+            setUser(parsed);
+        } catch {
+            router.replace("/login");
+        } finally {
+            setIsChecking(false);
+        }
+    }, [router]);
 
     // Fungsi Logout
     const handleLogout = () => {
-        // 1. Hapus data sesi (simulasi)
         localStorage.removeItem("user_session");
-        // 2. Arahkan ke halaman login
+        localStorage.removeItem("admin_session");
         router.push("/login");
     };
+
+    // Loading screen saat cek auth
+    if (isChecking) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-10 h-10 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin"></div>
+                    <p className="text-gray-500 text-sm font-medium">Memverifikasi sesi...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Jika belum login, jangan render apa-apa (redirect sudah berjalan)
+    if (!user) return null;
 
     return (
         <div className={`min-h-screen bg-gray-50 flex ${poppins.className}`}>
@@ -49,6 +93,9 @@ export default function DashboardLayout({
                     <NavItem href="/dashboard/courses" icon={BookIcon} active={pathname.includes("/dashboard/courses")}>
                         Kelas Saya
                     </NavItem>
+                    <NavItem href="/dashboard/workshops" icon={VideoIcon} active={pathname.includes("/dashboard/workshops")}>
+                        Workshop
+                    </NavItem>
                     <NavItem href="/dashboard/certificates" icon={TrophyIcon} active={pathname === "/dashboard/certificates"}>
                         Sertifikat
                     </NavItem>
@@ -58,12 +105,14 @@ export default function DashboardLayout({
                     <NavItem href="/dashboard/leaderboard" icon={ChartIcon} active={pathname === "/dashboard/leaderboard"}>
                         Leaderboard
                     </NavItem>
+                    <NavItem href="/dashboard/roadmaps" icon={MapIcon} active={pathname.includes("/dashboard/roadmaps")}>
+                        Jalur Belajar
+                    </NavItem>
 
                     <div className="pt-6 mt-6 border-t border-gray-100">
                         <NavItem href="/dashboard/settings" icon={SettingsIcon} active={pathname === "/dashboard/settings"}>
                             Pengaturan
                         </NavItem>
-                        {/* Tombol Logout Khusus */}
                         <button
                             onClick={handleLogout}
                             className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 text-red-500 hover:bg-red-50 hover:text-red-600 hover:pl-6"
@@ -78,11 +127,13 @@ export default function DashboardLayout({
                 <div className="p-4 border-t border-gray-100 bg-gray-50/50">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-indigo-100 border-2 border-white shadow-sm overflow-hidden p-0.5">
-                            <div className="w-full h-full rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600"></div>
+                            <div className="w-full h-full rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
+                                {user.name.charAt(0).toUpperCase()}
+                            </div>
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold text-gray-700 truncate">Rizky Developer</p>
-                            <p className="text-xs text-gray-500 truncate">Pro Member</p>
+                            <p className="text-sm font-bold text-gray-700 truncate">{user.name}</p>
+                            <p className="text-xs text-gray-500 truncate">{user.email}</p>
                         </div>
                     </div>
                 </div>
@@ -91,7 +142,7 @@ export default function DashboardLayout({
             {/* --- MOBILE LAYOUT --- */}
             <div className="flex-1 md:ml-64 flex flex-col min-h-screen transition-all duration-300">
 
-                {/* Mobile Header (Hanya muncul di HP) */}
+                {/* Mobile Header */}
                 <header className="h-16 bg-white border-b border-gray-200 flex md:hidden items-center justify-between px-4 sticky top-0 z-20 backdrop-blur-md bg-white/80">
                     <span className="font-bold text-lg flex items-center gap-2">
                         <div className="w-6 h-6 bg-indigo-600 rounded flex items-center justify-center text-white text-xs">⚡</div>
@@ -105,12 +156,14 @@ export default function DashboardLayout({
                     </button>
                 </header>
 
-                {/* Mobile Menu Dropdown (Simple) */}
+                {/* Mobile Menu Dropdown */}
                 {isMobileMenuOpen && (
                     <div className="md:hidden bg-white border-b border-gray-200 p-4 absolute top-16 left-0 w-full z-10 shadow-xl animate-fade-in-up">
                         <nav className="space-y-2">
                             <Link href="/dashboard" className="block px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg font-medium">Dashboard</Link>
-                            <Link href="#" className="block px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">Kelas Saya</Link>
+                            <Link href="/dashboard/courses" className="block px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">Kelas Saya</Link>
+                            <Link href="/dashboard/workshops" className="block px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">Workshop</Link>
+                            <Link href="/dashboard/roadmaps" className="block px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">Jalur Belajar</Link>
                             <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg font-medium">Keluar</button>
                         </nav>
                     </div>
@@ -150,3 +203,5 @@ const ChatIcon = (props: any) => <svg {...props} fill="none" stroke="currentColo
 const SettingsIcon = (props: any) => <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
 const LogoutIcon = (props: any) => <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>;
 const ChartIcon = (props: any) => <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>;
+const VideoIcon = (props: any) => <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 00-2 2z" /></svg>;
+const MapIcon = (props: any) => <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>;

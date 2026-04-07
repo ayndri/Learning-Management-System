@@ -1,0 +1,404 @@
+{
+  "courses": [
+    {
+      "id": "1",
+      "title": "Fullstack Laravel 10: Membangun E-Commerce",
+      "instructor": "Budi Santoso",
+      "price": 250000,
+      "rating": 4.8,
+      "students": 1205,
+      "image": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80",
+      "category": "Web Development",
+      "level": "Intermediate",
+      "duration": "20 Jam",
+      "status": "Published",
+      "sections": [
+        {
+          "id": 1,
+          "title": "Pengenalan & Persiapan",
+          "lessons": [
+            {
+              "id": 101,
+              "title": "Apa itu Laravel?",
+              "type": "video",
+              "duration": "10:00",
+              "isFree": true,
+              "contentUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+              "description": "Pengenalan dasar framework Laravel."
+            },
+            {
+              "id": 102,
+              "title": "Instalasi PHP & Composer",
+              "type": "video",
+              "duration": "15:00",
+              "isFree": false,
+              "contentUrl": "https://www.youtube.com/embed/kUMe1FH4CHE",
+              "description": "Persiapan environment Laravel."
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "Routing & Controller",
+          "lessons": [
+            {
+              "id": 201,
+              "title": "Kuis Dasar Routing",
+              "type": "quiz",
+              "duration": "5 Soal",
+              "isFree": false,
+              "questions": [
+                {
+                  "id": 1,
+                  "text": "File utama laravel routing ada di?",
+                  "options": [
+                    {
+                      "id": 1,
+                      "text": "routes/web.php",
+                      "isCorrect": true
+                    },
+                    {
+                      "id": 2,
+                      "text": "app/routes.php",
+                      "isCorrect": false
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "title": "Mastering React.js & Next.js 13",
+      "instructor": "Sarah Putri",
+      "price": 150000,
+      "rating": 4.9,
+      "students": 850,
+      "image": "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80",
+      "category": "Frontend",
+      "level": "Advanced",
+      "duration": "15 Jam",
+      "status": "Published",
+      "sections": [
+        {
+          "id": 3,
+          "title": "Introduction to Next.js",
+          "lessons": [
+            {
+              "id": 301,
+              "title": "App Router vs Pages Router",
+              "type": "video",
+              "duration": "12:00",
+              "isFree": true,
+              "contentUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "title": "UI/UX Design Masterclass: Figma to Code",
+      "instructor": "Rizky Dev",
+      "price": 200000,
+      "rating": 4.7,
+      "students": 2300,
+      "image": "https://images.unsplash.com/photo-1653647054667-c99dc7f914ef?w=800&q=80",
+      "category": "Design",
+      "level": "Beginner",
+      "duration": "12 Jam",
+      "status": "Published"
+    },
+    {
+      "id": "4",
+      "title": "Python untuk Data Science Pemula",
+      "instructor": "Andi Data",
+      "price": 0,
+      "rating": 4.5,
+      "students": 450,
+      "image": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80",
+      "category": "Data Science",
+      "level": "Beginner",
+      "duration": "8 Jam",
+      "status": "Published"
+    },
+    {
+      "id": "5",
+      "title": "Membangun API dengan Golang",
+      "instructor": "Budi Santoso",
+      "price": 300000,
+      "rating": 4.9,
+      "students": 600,
+      "image": "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80",
+      "category": "Backend",
+      "level": "Advanced",
+      "duration": "18 Jam",
+      "status": "Published"
+    },
+    {
+      "id": "6",
+      "title": "Digital Marketing Strategy 2025",
+      "instructor": "Citra Marketing",
+      "price": 100000,
+      "rating": 4.6,
+      "students": 1500,
+      "image": "https://images.unsplash.com/photo-1533750516457-a7f992034fec?w=800&q=80",
+      "category": "Business",
+      "level": "Beginner",
+      "duration": "10 Jam",
+      "status": "Published"
+    },
+    {
+      "id": "1775537625285",
+      "title": "Kursus Testing CRUD",
+      "instructor": "Admin Test",
+      "price": 0,
+      "rating": 0,
+      "students": 0,
+      "image": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80",
+      "category": "Web Development",
+      "level": "Beginner",
+      "duration": "0 Jam",
+      "status": "Published"
+    }
+  ],
+  "users": [
+    {
+      "id": "u1",
+      "name": "Dewi Nur Ayundari",
+      "email": "dewinurayundari.dna@gmail.com",
+      "password": "12345678",
+      "role": "admin",
+      "status": "Active",
+      "avatar": null,
+      "createdAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "u2",
+      "name": "Siswa Demo",
+      "email": "siswa@gmail.com",
+      "password": "123456",
+      "role": "student",
+      "status": "Active",
+      "avatar": null,
+      "createdAt": "2026-03-15T00:00:00Z"
+    },
+    {
+      "id": "u1775537112632",
+      "name": "Test User Baru",
+      "email": "testbaru@gmail.com",
+      "password": "123456",
+      "role": "student",
+      "status": "Active",
+      "avatar": null,
+      "createdAt": "2026-04-07T04:45:12.632Z"
+    }
+  ],
+  "workshops": [
+    {
+      "id": "ws1",
+      "title": "Mastering Next.js 15: App Router & Server Actions",
+      "instructor": "Dewi Nur Ayundari",
+      "date": "2026-04-15",
+      "time": "19:00 - 21:00 WIB",
+      "price": 149000,
+      "sold": 15,
+      "slots": 50,
+      "status": "Upcoming",
+      "image": "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80",
+      "category": "Web Development",
+      "description": "Pelajari fitur terbaru Next.js 15 dalam workshop intensif selama 2 jam.",
+      "meetingLink": "https://zoom.us/j/123456789"
+    },
+    {
+      "id": "ws2",
+      "title": "UI Design with Figma: From Zero to Pro",
+      "instructor": "Rizky Dev",
+      "date": "2026-04-10",
+      "time": "14:00 - 16:30 WIB",
+      "price": 99000,
+      "sold": 45,
+      "slots": 50,
+      "status": "Live",
+      "image": "https://images.unsplash.com/photo-1586717791821-3f44a563dc4c?w=800&q=80",
+      "category": "UI/UX Design",
+      "description": "Workshop desain UI interaktif menggunakan Figma untuk pemula.",
+      "meetingLink": "https://meet.google.com/abc-defg-hij"
+    },
+    {
+      "id": "ws3",
+      "title": "Python for AI: Building Your First Chatbot",
+      "instructor": "Sarah Putri",
+      "date": "2026-03-25",
+      "time": "20:00 - 22:00 WIB",
+      "price": 199000,
+      "sold": 30,
+      "slots": 30,
+      "status": "Finished",
+      "image": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80",
+      "category": "Artificial Intelligence",
+      "description": "Workshop pembuatan chatbot sederhana dengan Python dan OpenAI API.",
+      "meetingLink": ""
+    }
+  ],
+  "roadmaps": [
+    {
+      "id": "rm1",
+      "title": "Frontend Developer Masterclass",
+      "description": "Jalur belajar lengkap untuk mendominasi dunia frontend dari dasar hingga mahir dengan React dan Next.js.",
+      "level": "Beginner to Hero",
+      "prerequisites": [
+        "Kemauan Belajar",
+        "Koneksi Internet"
+      ],
+      "courseIds": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "price": 450000,
+      "coursesCount": 4,
+      "students": 120,
+      "status": "Active",
+      "image": "https://images.unsplash.com/photo-1547658719-da2b51169166?w=800&q=80"
+    },
+    {
+      "id": "rm2",
+      "title": "Fullstack Laravel & Vue Expert",
+      "description": "Kuasai ekosistem Laravel secara mendalam dan bangun aplikasi enterprise yang skalabel.",
+      "level": "Advanced Mastery",
+      "prerequisites": [
+        "PHP Dasar",
+        "OOP Concept"
+      ],
+      "courseIds": [
+        "5",
+        "1",
+        "6"
+      ],
+      "price": 600000,
+      "coursesCount": 3,
+      "students": 85,
+      "status": "Active",
+      "image": "https://images.unsplash.com/photo-1599507593499-a3f7d7d97667?w=800&q=80"
+    }
+  ],
+  "enrollments": [
+    {
+      "id": "enroll-1775550713732",
+      "userId": "u2",
+      "courseId": "2",
+      "enrolledAt": "2026-04-07T08:31:53.732Z",
+      "progress": 0
+    },
+    {
+      "id": "enroll-1775553098669",
+      "userId": "u2",
+      "courseId": "4",
+      "enrolledAt": "2026-04-07T09:11:38.669Z",
+      "progress": 0
+    }
+  ],
+  "workshopEnrollments": [
+    {
+      "id": "wenroll-1775552505020",
+      "userId": "u2",
+      "workshopId": "ws1",
+      "enrolledAt": "2026-04-07T09:01:45.020Z"
+    }
+  ],
+  "roadmapEnrollments": [],
+  "submissions": [],
+  "certificates": [
+    {
+      "id": "cert-001",
+      "userId": "u2",
+      "courseId": "1",
+      "courseTitle": "Fullstack Laravel 10: Membangun E-Commerce",
+      "instructor": "Budi Santoso",
+      "grade": "A",
+      "issuedAt": "2026-03-20T00:00:00Z"
+    },
+    {
+      "id": "cert-002",
+      "userId": "u2",
+      "courseId": "3",
+      "courseTitle": "UI/UX Design Masterclass: Figma to Code",
+      "instructor": "Rizky Dev",
+      "grade": "A+",
+      "issuedAt": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "cert-1775552247244",
+      "userId": "u2",
+      "courseId": "2",
+      "courseTitle": "Mastering React.js & Next.js 13",
+      "instructor": "Sarah Putri",
+      "grade": "A",
+      "issuedAt": "2026-04-07T08:57:27.244Z"
+    }
+  ],
+  "leaderboard": [
+    {
+      "id": "lb1",
+      "userId": "u2",
+      "name": "Siswa Demo",
+      "xp": 15000
+    },
+    {
+      "id": "lb2",
+      "userId": null,
+      "name": "Budi Santoso",
+      "xp": 12500
+    },
+    {
+      "id": "lb3",
+      "userId": null,
+      "name": "Andi Saputra",
+      "xp": 11200
+    },
+    {
+      "id": "lb4",
+      "userId": null,
+      "name": "Siti Aminah",
+      "xp": 9800
+    },
+    {
+      "id": "lb5",
+      "userId": null,
+      "name": "Sarah Putri",
+      "xp": 9500
+    },
+    {
+      "id": "lb6",
+      "userId": null,
+      "name": "Citra Marketing",
+      "xp": 9200
+    },
+    {
+      "id": "lb7",
+      "userId": null,
+      "name": "Rizky Developer",
+      "xp": 8900
+    }
+  ],
+  "settings": {
+    "siteName": "EduFlash",
+    "siteDescription": "Platform Belajar Modern untuk Mengasah Skill Digital Anda secara Cepat dan Efektif.",
+    "contactEmail": "admin@eduflash.com",
+    "contactPhone": "+62 812 3456 7890",
+    "maintenanceMode": false,
+    "registrationEnabled": true,
+    "address": "Jakarta, Indonesia",
+    "socialLinks": {
+      "facebook": "https://facebook.com/eduflash",
+      "instagram": "https://instagram.com/eduflash",
+      "twitter": "https://twitter.com/eduflash",
+      "linkedin": "https://linkedin.com/company/eduflash"
+    }
+  }
+}

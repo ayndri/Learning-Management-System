@@ -2,10 +2,22 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
+    const [adminName, setAdminName] = useState("Administrator");
+
+    useEffect(() => {
+        try {
+            const session = localStorage.getItem("user_session");
+            if (session) {
+                const user = JSON.parse(session);
+                setAdminName(user.name || "Administrator");
+            }
+        } catch {}
+    }, []);
 
     const handleLogout = () => {
         localStorage.removeItem("admin_session");
@@ -37,6 +49,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     >
                         Kelola Roadmap
                     </AdminNavItem>
+                    <AdminNavItem href="/admin/dashboard/submissions" active={pathname.includes("/submissions")} icon="📥">
+                        Review Project
+                    </AdminNavItem>
                 </nav>
 
                 <div className="p-4 border-t border-gray-800">
@@ -50,9 +65,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="flex-1 md:ml-64 min-h-screen flex flex-col">
                 {/* Topbar Admin */}
                 <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 sticky top-0 z-10">
-                    <h2 className="font-semibold text-gray-700">Selamat Datang, Administrator</h2>
+                    <h2 className="font-semibold text-gray-700">Selamat Datang, {adminName} 👋</h2>
                     <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-xs">
-                        AD
+                        {adminName.charAt(0).toUpperCase()}
                     </div>
                 </header>
 

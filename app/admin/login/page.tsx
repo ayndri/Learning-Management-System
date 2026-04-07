@@ -15,12 +15,28 @@ export default function LoginPage() {
         e.preventDefault();
         setIsLoading(true);
         setError("");
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        if (email === "siswa@gmail.com" && password === "123456") {
-            localStorage.setItem("user_session", "active");
-            router.push("/dashboard");
-        } else {
-            setError("Email atau password salah! Coba: siswa@gmail.com / 123456");
+
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+            });
+            const json = await res.json();
+
+            if (json.success && json.data.role === 'admin') {
+                localStorage.setItem("admin_session", "active");
+                localStorage.setItem("user_session", JSON.stringify(json.data));
+                router.push("/admin/dashboard");
+            } else if (json.success && json.data.role !== 'admin') {
+                setError("Akun ini bukan akun Administrator.");
+                setIsLoading(false);
+            } else {
+                setError(json.message || "Email atau password salah!");
+                setIsLoading(false);
+            }
+        } catch (error) {
+            setError("Terjadi kesalahan koneksi ke server.");
             setIsLoading(false);
         }
     };

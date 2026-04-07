@@ -20,17 +20,31 @@ export default function LoginPage() {
         setIsLoading(true);
         setError("");
 
-        // Simulasi Request Server
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+            });
+            const json = await res.json();
 
-        // Validasi Sederhana (Hardcode)
-        if (email === "siswa@gmail.com" && password === "123456") {
-            // Sukses Login
-            localStorage.setItem("user_session", "active"); // Simpan session dummy
-            router.push("/dashboard");
-        } else {
-            // Gagal Login
-            setError("Email atau password salah! Coba: siswa@gmail.com / 123456");
+            if (json.success) {
+                // Simpan session data
+                localStorage.setItem("user_session", JSON.stringify(json.data));
+
+                // Redirect berdasarkan role
+                if (json.data.role === 'admin') {
+                    localStorage.setItem("admin_session", "active");
+                    router.push("/admin/dashboard");
+                } else {
+                    router.push("/dashboard");
+                }
+            } else {
+                setError(json.message || "Email atau password salah!");
+                setIsLoading(false);
+            }
+        } catch (error) {
+            setError("Terjadi kesalahan koneksi ke server.");
             setIsLoading(false);
         }
     };

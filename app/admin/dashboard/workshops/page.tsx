@@ -1,60 +1,51 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-
-// --- DUMMY DATA WORKSHOP ---
-const initialWorkshops = [
-    {
-        id: 1,
-        title: "Bedah Kode: Membangun SaaS dengan Next.js 14",
-        instructor: "Budi Santoso",
-        date: "12 Jan 2026",
-        time: "09:00 - 12:00 WIB",
-        price: 99000,
-        sold: 45,
-        slots: 50,
-        status: "Upcoming", // Upcoming, Live, Finished
-        image: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=100&q=80"
-    },
-    {
-        id: 2,
-        title: "Workshop UI/UX: Redesign Aplikasi Gojek",
-        instructor: "Sarah Putri",
-        date: "13 Jan 2026",
-        time: "13:00 - 16:00 WIB",
-        price: 150000,
-        sold: 10,
-        slots: 30,
-        status: "Upcoming",
-        image: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=100&q=80"
-    },
-    {
-        id: 3,
-        title: "Dasar Laravel 10 untuk Pemula",
-        instructor: "Budi Santoso",
-        date: "10 Des 2025",
-        time: "19:00 - 21:00 WIB",
-        price: 50000,
-        sold: 100,
-        slots: 100,
-        status: "Finished",
-        image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=100&q=80"
-    }
-];
+import { useState, useEffect } from "react";
+import type { Workshop } from "@/lib/db";
 
 export default function AdminWorkshopsPage() {
-    const [workshops, setWorkshops] = useState(initialWorkshops);
+    const [workshops, setWorkshops] = useState<Workshop[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [filter, setFilter] = useState("All");
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-    // Logic Filter Status
+    const showToast = (message: string, type: 'success' | 'error') => {
+        setToast({ message, type });
+        setTimeout(() => setToast(null), 3000);
+    };
+
+    const fetchWorkshops = async () => {
+        try {
+            setIsLoading(true);
+            const res = await fetch('/api/workshops');
+            const json = await res.json();
+            if (json.success) setWorkshops(json.data);
+        } catch (err) {
+            console.error("Failed to fetch workshops:", err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => { fetchWorkshops(); }, []);
+
     const filteredWorkshops = filter === "All"
         ? workshops
         : workshops.filter(w => w.status === filter);
 
-    const handleDelete = (id: number) => {
+    const handleDelete = async (id: string) => {
         if (confirm("Hapus workshop ini? Data penjualan terkait mungkin akan error.")) {
-            setWorkshops(workshops.filter(w => w.id !== id));
+            try {
+                const res = await fetch(`/api/workshops/${id}`, { method: 'DELETE' });
+                const json = await res.json();
+                if (json.success) {
+                    setWorkshops(workshops.filter(w => w.id !== id));
+                    showToast("Workshop berhasil dihapus!", 'success');
+                }
+            } catch {
+                showToast("Gagal menghapus workshop.", 'error');
+            }
         }
     };
 
@@ -105,10 +96,17 @@ export default function AdminWorkshopsPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {filteredWorkshops.map((ws) => (
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan={5} className="py-10 text-center">
+                                        <div className="flex flex-col items-center justify-center space-y-3">
+                                            <div className="w-8 h-8 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin"></div>
+                                            <p className="text-gray-400 text-sm font-medium">Memuat data workshop...</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : filteredWorkshops.map((ws) => (
                                 <tr key={ws.id} className="hover:bg-gray-50 transition group">
-
-                                    {/* Info */}
                                     <td className="px-6 py-4">
                                         <div className="flex gap-4 items-center">
                                             <img src={ws.image} alt="" className="w-12 h-12 rounded-lg object-cover bg-gray-100" />
@@ -118,14 +116,10 @@ export default function AdminWorkshopsPage() {
                                             </div>
                                         </div>
                                     </td>
-
-                                    {/* Jadwal */}
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <p className="font-medium text-gray-900">{ws.date}</p>
                                         <p className="text-xs text-gray-500">{ws.time}</p>
                                     </td>
-
-                                    {/* Penjualan (Progress Bar) */}
                                     <td className="px-6 py-4 w-48">
                                         <div className="flex justify-between text-xs mb-1">
                                             <span className="font-bold text-gray-700">{ws.sold}/{ws.slots} Terjual</span>
@@ -134,13 +128,11 @@ export default function AdminWorkshopsPage() {
                                         <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
                                             <div
                                                 className={`h-1.5 rounded-full ${ws.sold === ws.slots ? 'bg-red-500' : 'bg-green-500'}`}
-                                                style={{ width: `${(ws.sold / ws.slots) * 100}%` }}
+                                                style={{ width: `${ws.slots > 0 ? (ws.sold / ws.slots) * 100 : 0}%` }}
                                             ></div>
                                         </div>
                                         {ws.sold === ws.slots && <p className="text-[10px] text-red-500 mt-1 font-bold">SOLD OUT</p>}
                                     </td>
-
-                                    {/* Status */}
                                     <td className="px-6 py-4">
                                         <span className={`inline-flex items-center px-3 py-2 rounded-full text-xs font-bold border ${ws.status === 'Upcoming' ? 'bg-blue-50 text-blue-700 border-blue-200' :
                                             ws.status === 'Live' ? 'bg-red-50 text-red-700 border-red-200 animate-pulse' :
@@ -149,28 +141,8 @@ export default function AdminWorkshopsPage() {
                                             {ws.status}
                                         </span>
                                     </td>
-
-                                    {/* Aksi */}
                                     <td className="px-6 py-4 text-right">
                                         <div className="flex justify-end gap-2">
-                                            {/* LINK KE PESERTA */}
-                                            <Link
-                                                href={`/admin/dashboard/workshops/${ws.id}/participants`}
-                                                className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
-                                                title="Lihat Peserta"
-                                            >
-                                                👥
-                                            </Link>
-
-                                            {/* LINK KE EDIT */}
-                                            <Link
-                                                href={`/admin/dashboard/workshops/${ws.id}/edit`}
-                                                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                                                title="Edit"
-                                            >
-                                                ✏️
-                                            </Link>
-
                                             <button
                                                 onClick={() => handleDelete(ws.id)}
                                                 className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
@@ -185,11 +157,23 @@ export default function AdminWorkshopsPage() {
                         </tbody>
                     </table>
 
-                    {filteredWorkshops.length === 0 && (
-                        <div className="text-center py-12 text-gray-500">Belum ada workshop dengan status ini.</div>
+                    {!isLoading && filteredWorkshops.length === 0 && (
+                        <div className="text-center py-12 text-gray-500">
+                            <p className="text-4xl mb-3">📹</p>
+                            <p className="font-medium">Belum ada workshop{filter !== 'All' ? ` dengan status "${filter}"` : ''}.</p>
+                            <p className="text-sm text-gray-400 mt-1">Klik "Buat Event Baru" untuk menambahkan.</p>
+                        </div>
                     )}
                 </div>
             </div>
+
+            {/* TOAST */}
+            {toast && (
+                <div className={`fixed bottom-5 right-5 px-6 py-3 rounded-lg shadow-xl font-medium text-sm z-50 flex items-center gap-3 animate-fade-in-up ${toast.type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
+                    <span>{toast.type === 'success' ? '✅' : '❌'}</span>
+                    {toast.message}
+                </div>
+            )}
         </div>
     );
 }

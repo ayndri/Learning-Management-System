@@ -1,109 +1,40 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import type { Course } from "@/lib/db";
+import Navbar from "@/components/Navbar";
 
 export default function LandingPage() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isYearly, setIsYearly] = useState(false); // State untuk Pricing Toggle
 
-  // Dummy Data Kursus (Digabungkan)
-  const featuredCourses = [
-    {
-      id: "1",
-      title: "Fullstack Laravel 10",
-      instructor: "Budi Santoso",
-      price: "Rp 250.000",
-      rating: 4.8,
-      students: 1205,
-      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80",
-      category: "Web Development",
-      duration: "20 Jam"
-    },
-    {
-      id: "2",
-      title: "Mastering React.js",
-      instructor: "Sarah Putri",
-      price: "Rp 150.000",
-      rating: 4.9,
-      students: 850,
-      image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80",
-      category: "Frontend",
-      duration: "15 Jam"
-    },
-    {
-      id: "3",
-      title: "UI/UX Design Masterclass",
-      instructor: "Rizky Dev",
-      price: "Rp 200.000",
-      rating: 4.7,
-      students: 2300,
-      image: "https://images.unsplash.com/photo-1586717791821-3f44a5638d48?w=800&q=80",
-      category: "Design",
-      duration: "12 Jam"
+  const [featuredCourses, setFeaturedCourses] = useState<Course[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadCourses() {
+      try {
+        const res = await fetch('/api/courses?limit=3');
+        const json = await res.json();
+        if (json.success) {
+          setFeaturedCourses(json.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch courses:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
-  ];
+    loadCourses();
+  }, []);
 
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 overflow-x-hidden">
 
-      {/* --- NAVBAR (Glassmorphism) --- */}
-      <nav className="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            {/* Logo */}
-            <div className="flex items-center gap-2 group cursor-pointer">
-              <div className="w-10 h-10 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:rotate-12 transition-transform duration-300">
-                ⚡
-              </div>
-              <span className="font-extrabold text-2xl tracking-tight text-gray-900">
-                Edu<span className="text-indigo-600">Flash</span>
-              </span>
-            </div>
-
-            {/* Desktop Menu */}
-            {/* Desktop Menu */}
-            <div className="hidden md:flex items-center space-x-8">
-              {[
-                { name: 'Beranda', href: '/' },
-                { name: 'Katalog', href: '/courses' },
-                { name: 'Workshop', href: '/workshop' },       // Menu Baru
-                { name: 'Jalur Belajar', href: '/roadmap' },   // Menu Baru
-              ].map((item) => (
-                <Link key={item.name} href={item.href} className="text-sm font-semibold text-gray-600 hover:text-indigo-600 transition relative group">
-                  {item.name}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-600 transition-all group-hover:w-full"></span>
-                </Link>
-              ))}
-              <div className="h-6 w-px bg-gray-200"></div>
-
-              <Link href="/login" className="text-sm font-bold text-gray-900 hover:text-indigo-600 transition">Masuk</Link>
-              <Link href="/register" className="bg-gray-900 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-indigo-600 transition shadow-lg shadow-gray-200 hover:shadow-indigo-200 transform hover:-translate-y-0.5">
-                Daftar Gratis
-              </Link>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <div className="md:hidden">
-              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-600 focus:outline-none">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" /></svg>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Menu Dropdown */}
-        {isMenuOpen && (
-          <div className="md:hidden bg-white border-b border-gray-100 px-4 py-4 space-y-3 shadow-xl">
-            <Link href="#courses" className="block text-gray-600 font-medium">Katalog Kelas</Link>
-            <Link href="#pricing" className="block text-gray-600 font-medium">Harga</Link>
-            <Link href="/login" className="block text-indigo-600 font-bold">Masuk Akun</Link>
-          </div>
-        )}
-      </nav>
+      <Navbar />
 
       {/* --- HERO SECTION (Split Layout) --- */}
-      <section className="pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden relative">
+      <section className="pt-20 pb-20 lg:pt-32 lg:pb-32 overflow-hidden relative">
         {/* Background Blobs */}
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-purple-100/50 rounded-full blur-3xl opacity-50 -z-10 animate-float"></div>
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-100/50 rounded-full blur-3xl opacity-50 -z-10 animate-float delay-500"></div>
@@ -184,54 +115,74 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredCourses.map((course, index) => (
-              <div key={course.id} className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-lg hover:shadow-[0_20px_50px_rgba(8,_112,_184,_0.1)] transition-all duration-300 group flex flex-col hover:-translate-y-2">
-                {/* Gradient Thumbnail Area */}
-                <div className={`h-56 w-full bg-gradient-to-br ${getGradient(index)} relative overflow-hidden`}>
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition duration-500"></div>
-                  {/* Decorative Shapes */}
-                  <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-white/20 rounded-full blur-xl group-hover:scale-150 transition duration-700"></div>
-
-                  {/* Play Button Overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-500 transform translate-y-4 group-hover:translate-y-0">
-                    <div className="w-14 h-14 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center text-white text-2xl border border-white/50 shadow-lg">▶</div>
-                  </div>
-
-                  {/* Badge Category */}
-                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-lg text-xs font-bold text-indigo-900 shadow-sm">
-                    {course.category}
+            {isLoading ? (
+              [1, 2, 3].map((_, index) => (
+                <div key={index} className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-lg animate-pulse flex flex-col h-[420px]">
+                  <div className="h-56 w-full bg-gray-200"></div>
+                  <div className="p-6 flex-1 flex flex-col gap-4">
+                    <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                    <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                    <div className="mt-auto pt-4 border-t border-gray-50 flex justify-between">
+                      <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                    </div>
                   </div>
                 </div>
+              ))
+            ) : (
+              featuredCourses.map((course, index) => (
+                <div key={course.id} className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-lg hover:shadow-[0_20px_50px_rgba(8,_112,_184,_0.1)] transition-all duration-300 group flex flex-col hover:-translate-y-2">
+                  {/* Gradient Thumbnail Area */}
+                  <div className={`h-56 w-full bg-gradient-to-br ${getGradient(index)} relative overflow-hidden`}>
+                    {course.image ? (
+                        <img src={course.image} alt={course.title} className="w-full h-full object-cover mix-blend-overlay group-hover:scale-110 transition duration-700 opacity-60" />
+                    ) : null}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition duration-500"></div>
+                    {/* Decorative Shapes */}
+                    <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-white/20 rounded-full blur-xl group-hover:scale-150 transition duration-700"></div>
 
-                <div className="p-6 flex-1 flex flex-col relative">
-                  {/* Duration Badge floating */}
-                  <div className="absolute -top-5 right-6 bg-white p-1 rounded-xl shadow-lg border border-gray-100">
-                    <div className="px-3 py-1 bg-gray-900 text-white text-xs font-bold rounded-lg">
-                      {course.duration}
+                    {/* Play Button Overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-500 transform translate-y-4 group-hover:translate-y-0">
+                      <div className="w-14 h-14 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center text-white text-2xl border border-white/50 shadow-lg">▶</div>
+                    </div>
+
+                    {/* Badge Category */}
+                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-lg text-xs font-bold text-indigo-900 shadow-sm">
+                      {course.category}
                     </div>
                   </div>
 
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors line-clamp-2">
-                    {course.title}
-                  </h3>
-                  <p className="text-sm text-gray-500 mb-4">Oleh {course.instructor}</p>
+                  <div className="p-6 flex-1 flex flex-col relative">
+                    {/* Duration Badge floating */}
+                    <div className="absolute -top-5 right-6 bg-white p-1 rounded-xl shadow-lg border border-gray-100">
+                      <div className="px-3 py-1 bg-gray-900 text-white text-xs font-bold rounded-lg">
+                        {course.duration}
+                      </div>
+                    </div>
 
-                  <div className="flex items-center gap-1 mb-6">
-                    <span className="text-yellow-400 text-lg">★</span>
-                    <span className="text-sm font-bold text-gray-900">{course.rating}</span>
-                    <span className="text-sm text-gray-400">({course.students} siswa)</span>
-                  </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors line-clamp-2">
+                      {course.title}
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-4">Oleh {course.instructor}</p>
 
-                  <div className="mt-auto pt-4 border-t border-dashed border-gray-100 flex items-center justify-between">
-                    <span className="text-lg font-black text-gray-900">{course.price}</span>
-                    {/* Mengarah ke Halaman Detail Kursus yang sudah dibuat */}
-                    <Link href={`/courses/${course.id}`} className="text-indigo-600 font-bold text-sm hover:underline">
-                      Lihat Detail &rarr;
-                    </Link>
+                    <div className="flex items-center gap-1 mb-6">
+                      <span className="text-yellow-400 text-lg">★</span>
+                      <span className="text-sm font-bold text-gray-900">{course.rating}</span>
+                      <span className="text-sm text-gray-400">({course.students} siswa)</span>
+                    </div>
+
+                    <div className="mt-auto pt-4 border-t border-dashed border-gray-100 flex items-center justify-between">
+                      <span className="text-lg font-black text-gray-900">{typeof course.price === 'number' && course.price === 0 ? "Gratis" : `Rp ${typeof course.price === 'number' ? course.price.toLocaleString('id-ID') : course.price}`}</span>
+                      {/* Mengarah ke Halaman Detail Kursus yang sudah dibuat */}
+                      <Link href={`/courses/${course.id}`} className="text-indigo-600 font-bold text-sm hover:underline">
+                        Lihat Detail &rarr;
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </section>

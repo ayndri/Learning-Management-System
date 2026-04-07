@@ -1,34 +1,64 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { courses } from "../../../data/courses"; // Pastikan path import ini benar
+import { useState, useEffect } from "react";
+import type { Course } from "@/lib/db";
 
 export default function MyCoursesPage() {
-    const [filter, setFilter] = useState("all"); // all | in-progress | completed
+    const [courses, setCourses] = useState<Course[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [filter, setFilter] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
 
-    // Filter logika sederhana
-    const filteredCourses = courses.filter((course) => {
-        const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase());
+    useEffect(() => {
+        async function loadEnrolledCourses() {
+            try {
+                const session = localStorage.getItem("user_session");
+                if (!session) { setIsLoading(false); return; }
+                const { id: userId } = JSON.parse(session);
 
-        // Simulasi filter status (karena data static, kita random/hardcode saja logikanya)
-        // Di real app, data ini dari database
-        if (filter === "completed") return matchesSearch && course.id === "html-dasar"; // Ceritanya HTML sudah selesai
-        if (filter === "in-progress") return matchesSearch && course.id !== "html-dasar";
+                // Ambil enrollment user
+                const enrollRes = await fetch(`/api/enrollments?userId=${userId}`);
+                const enrollJson = await enrollRes.json();
+                if (!enrollJson.success || enrollJson.data.length === 0) {
+                    setIsLoading(false);
+                    return;
+                }
+
+                const enrolledCourseIds: string[] = enrollJson.data.map((e: any) => e.courseId);
+
+                // Ambil semua kursus lalu filter yang sudah di-enroll
+                const coursesRes = await fetch('/api/courses');
+                const coursesJson = await coursesRes.json();
+                if (coursesJson.success) {
+                    const enrolled = coursesJson.data.filter((c: Course) => enrolledCourseIds.includes(c.id));
+                    setCourses(enrolled);
+                }
+            } catch (err) {
+                console.error("Failed to load enrolled courses:", err);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        loadEnrolledCourses();
+    }, []);
+
+    const filteredCourses = courses.filter((course) => {
+        const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            course.instructor.toLowerCase().includes(searchQuery.toLowerCase());
+        if (filter === "free") return matchesSearch && course.price === 0;
+        if (filter === "paid") return matchesSearch && course.price > 0;
         return matchesSearch;
     });
 
     return (
         <div className="space-y-8 animate-fade-in-up">
-            {/* --- HEADER & CONTROLS --- */}
+            {/* HEADER */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Kelas Saya</h1>
-                    <p className="text-gray-500 text-sm">Lanjutkan pembelajaran Anda yang tertunda.</p>
+                    <p className="text-gray-500 text-sm">Kursus yang sudah kamu daftarkan.</p>
                 </div>
-
-                {/* Search Bar */}
                 <div className="relative">
                     <input
                         type="text"
@@ -43,95 +73,97 @@ export default function MyCoursesPage() {
                 </div>
             </div>
 
-            {/* --- TABS FILTER --- */}
+            {/* TABS */}
             <div className="border-b border-gray-200">
                 <nav className="flex space-x-8">
-                    {["all", "in-progress", "completed"].map((tab) => (
+                    {[
+                        { key: "all", label: "Semua" },
+                        { key: "free", label: "Gratis" },
+                        { key: "paid", label: "Berbayar" },
+                    ].map((tab) => (
                         <button
-                            key={tab}
-                            onClick={() => setFilter(tab)}
-                            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors capitalize ${filter === tab
+                            key={tab.key}
+                            onClick={() => setFilter(tab.key)}
+                            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${filter === tab.key
                                 ? "border-indigo-600 text-indigo-600"
                                 : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                                }`}
+                            }`}
                         >
-                            {tab === "all" ? "Semua Kelas" : tab === "in-progress" ? "Sedang Berjalan" : "Selesai"}
+                            {tab.label}
                         </button>
                     ))}
                 </nav>
             </div>
 
-            {/* --- COURSE GRID --- */}
-            {filteredCourses.length > 0 ? (
+            {/* LOADING */}
+            {isLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredCourses.map((course, index) => {
-                        // Simulasi Progress Random agar terlihat variatif
-                        const isCompleted = course.id === "html-dasar";
-                        const progress = isCompleted ? 100 : Math.floor(Math.random() * 80) + 10;
-
-                        return (
-                            <div key={course.id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-lg transition flex flex-col">
-                                {/* Thumbnail Area */}
-                                <div className={`h-40 bg-gradient-to-r ${getGradient(index)} relative flex items-center justify-center`}>
-                                    <span className="text-4xl">💻</span>
-                                    {isCompleted && (
-                                        <div className="absolute top-3 right-3 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
-                                            SELESAI
-                                        </div>
-                                    )}
+                    {[1, 2, 3].map((i) => (
+                        <div key={i} className="bg-white border border-gray-200 rounded-2xl overflow-hidden animate-pulse">
+                            <div className="h-40 bg-gray-200"></div>
+                            <div className="p-6 space-y-3">
+                                <div className="h-5 bg-gray-200 rounded w-3/4"></div>
+                                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                                <div className="h-10 bg-gray-200 rounded-lg w-full mt-3"></div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : filteredCourses.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredCourses.map((course) => (
+                        <div key={course.id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-lg transition flex flex-col group">
+                            <div className="relative h-40 overflow-hidden">
+                                <img src={course.image} alt={course.title} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                <div className="absolute top-3 right-3">
+                                    <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${
+                                        course.level === 'Beginner' ? 'bg-green-500 text-white' :
+                                        course.level === 'Intermediate' ? 'bg-yellow-500 text-white' :
+                                        'bg-red-500 text-white'
+                                    }`}>
+                                        {course.level}
+                                    </span>
                                 </div>
-
-                                <div className="p-6 flex-1 flex flex-col">
-                                    <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-1">{course.title}</h3>
-                                    <p className="text-sm text-gray-500 mb-4 line-clamp-2">{course.description}</p>
-
-                                    {/* Progress Bar */}
-                                    <div className="mt-auto">
-                                        <div className="flex justify-between text-xs font-semibold text-gray-600 mb-1">
-                                            <span>Progress</span>
-                                            <span>{progress}%</span>
-                                        </div>
-                                        <div className="w-full bg-gray-100 rounded-full h-2 mb-4">
-                                            <div
-                                                className={`h-2 rounded-full ${isCompleted ? 'bg-green-500' : 'bg-indigo-600'}`}
-                                                style={{ width: `${progress}%` }}
-                                            ></div>
-                                        </div>
-
-                                        <Link
-                                            href={`/courses/${course.id}`}
-                                            className={`block w-full text-center py-2.5 rounded-lg text-sm font-semibold transition ${isCompleted
-                                                ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                                                : "bg-indigo-600 text-white hover:bg-indigo-700"
-                                                }`}
-                                        >
-                                            {isCompleted ? "Ulangi Materi" : "Lanjutkan Belajar"}
-                                        </Link>
+                                {course.price === 0 && (
+                                    <div className="absolute top-3 left-3 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                                        GRATIS
                                     </div>
+                                )}
+                                <div className="absolute bottom-3 left-3 text-white text-xs font-bold bg-black/50 px-2 py-1 rounded backdrop-blur-sm">
+                                    {course.duration}
                                 </div>
                             </div>
-                        );
-                    })}
+
+                            <div className="p-5 flex-1 flex flex-col">
+                                <h3 className="font-bold text-base text-gray-900 mb-1 line-clamp-2 group-hover:text-indigo-600 transition">{course.title}</h3>
+                                <p className="text-sm text-gray-500 mb-4">{course.instructor}</p>
+
+                                <div className="mt-auto">
+                                    <Link
+                                        href={`/courses/${course.id}/learn`}
+                                        className="block w-full text-center py-2.5 rounded-xl text-sm font-bold transition bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm"
+                                    >
+                                        Lanjutkan Belajar →
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             ) : (
-                // State Kosong (Jika search tidak ketemu)
-                <div className="text-center py-20">
-                    <div className="text-6xl mb-4">🔍</div>
-                    <h3 className="text-lg font-medium text-gray-900">Tidak ada kelas ditemukan</h3>
-                    <p className="text-gray-500">Coba kata kunci lain atau ubah filter.</p>
+                <div className="text-center py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+                    <div className="text-6xl mb-4">📚</div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">Belum ada kelas</h3>
+                    <p className="text-gray-500 text-sm mb-6">Kamu belum mendaftar ke kursus apapun.</p>
+                    <Link
+                        href="/courses"
+                        className="inline-block px-6 py-2.5 bg-indigo-600 text-white font-bold rounded-xl text-sm hover:bg-indigo-700 transition"
+                    >
+                        Jelajahi Kursus →
+                    </Link>
                 </div>
             )}
         </div>
     );
-}
-
-// Helper untuk warna warni
-function getGradient(index: number) {
-    const gradients = [
-        "from-blue-400 to-indigo-500",
-        "from-purple-400 to-pink-500",
-        "from-emerald-400 to-teal-500",
-        "from-orange-400 to-red-500",
-    ];
-    return gradients[index % gradients.length];
 }

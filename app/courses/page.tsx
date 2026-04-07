@@ -1,79 +1,33 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-
-// --- DUMMY DATA LENGKAP ---
-const allCourses = [
-    {
-        id: "1",
-        title: "Fullstack Laravel 10: Membangun E-Commerce",
-        instructor: "Budi Santoso",
-        price: 250000,
-        rating: 4.8,
-        image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80",
-        category: "Web Development",
-        level: "Intermediate",
-        duration: "20 Jam"
-    },
-    {
-        id: "2",
-        title: "Mastering React.js & Next.js 13",
-        instructor: "Sarah Putri",
-        price: 150000,
-        rating: 4.9,
-        image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80",
-        category: "Frontend",
-        level: "Advanced",
-        duration: "15 Jam"
-    },
-    {
-        id: "3",
-        title: "UI/UX Design Masterclass: Figma to Code",
-        instructor: "Rizky Dev",
-        price: 200000,
-        rating: 4.7,
-        image: "https://images.unsplash.com/photo-1653647054667-c99dc7f914ef?w=800&q=80",
-        category: "Design",
-        level: "Beginner",
-        duration: "12 Jam"
-    },
-    {
-        id: "4",
-        title: "Python untuk Data Science Pemula",
-        instructor: "Andi Data",
-        price: 0,
-        rating: 4.5,
-        image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80",
-        category: "Data Science",
-        level: "Beginner",
-        duration: "8 Jam"
-    },
-    {
-        id: "5",
-        title: "Membangun API dengan Golang",
-        instructor: "Budi Santoso",
-        price: 300000,
-        rating: 4.9,
-        image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80",
-        category: "Backend",
-        level: "Advanced",
-        duration: "18 Jam"
-    },
-    {
-        id: "6",
-        title: "Digital Marketing Strategy 2025",
-        instructor: "Citra Marketing",
-        price: 100000,
-        rating: 4.6,
-        image: "https://images.unsplash.com/photo-1533750516457-a7f992034fec?w=800&q=80",
-        category: "Business",
-        level: "Beginner",
-        duration: "10 Jam"
-    }
-];
+import { useMemo, useState, useEffect } from "react";
+import type { Course } from "@/lib/db";
+import Navbar from "@/components/Navbar";
 
 export default function CourseCatalogPage() {
+    // Data State
+    const [allCourses, setAllCourses] = useState<Course[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Fetch data
+    useEffect(() => {
+        async function loadCourses() {
+            try {
+                const res = await fetch('/api/courses');
+                const json = await res.json();
+                if(json.success) {
+                    setAllCourses(json.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch courses:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        loadCourses();
+    }, []);
+
     // State Filter
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
@@ -92,26 +46,12 @@ export default function CourseCatalogPage() {
             const matchLevel = selectedLevel === "All" || course.level === selectedLevel;
             return matchSearch && matchCategory && matchLevel;
         });
-    }, [searchQuery, selectedCategory, selectedLevel]);
+    }, [allCourses, searchQuery, selectedCategory, selectedLevel]);
 
     return (
         <div className="min-h-screen bg-white font-sans text-gray-900">
 
-            {/* --- NAVBAR SIMPLE (Untuk halaman dalam) --- */}
-            <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-100">
-                <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
-                    <Link href="/" className="flex items-center gap-2 group cursor-pointer">
-                        <div className="w-8 h-8 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md">⚡</div>
-                        <span className="font-extrabold text-xl tracking-tight text-gray-900">Edu<span className="text-indigo-600">Flash</span>.</span>
-                    </Link>
-                    <div className="flex gap-4 items-center justify-center">
-                        <Link href="/login" className="text-sm font-bold text-gray-900 hover:text-indigo-600 transition">Masuk</Link>
-                        <Link href="/register" className="bg-gray-900 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-indigo-600 transition shadow-lg shadow-gray-200 hover:shadow-indigo-200 transform hover:-translate-y-0.5">
-                            Daftar Gratis
-                        </Link>
-                    </div>
-                </div>
-            </nav>
+            <Navbar />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
@@ -218,7 +158,24 @@ export default function CourseCatalogPage() {
 
                     {/* --- COURSE GRID --- */}
                     <div className="flex-1 w-full">
-                        {filteredCourses.length === 0 ? (
+                        {isLoading ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {[1, 2, 3, 4, 5, 6].map((i) => (
+                                    <div key={i} className="bg-white rounded-2xl border border-gray-100 shadow-sm animate-pulse flex flex-col overflow-hidden h-[380px]">
+                                        <div className="h-48 w-full bg-gray-200"></div>
+                                        <div className="p-5 flex-1 flex flex-col gap-3">
+                                            <div className="h-3 w-1/4 bg-gray-200 rounded"></div>
+                                            <div className="h-5 w-3/4 bg-gray-200 rounded"></div>
+                                            <div className="h-5 w-1/2 bg-gray-200 rounded"></div>
+                                            <div className="mt-auto pt-4 border-t border-gray-50 flex justify-between items-center">
+                                                <div className="h-6 w-1/3 bg-gray-200 rounded-full"></div>
+                                                <div className="h-4 w-1/4 bg-gray-200 rounded"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : filteredCourses.length === 0 ? (
                             <div className="text-center py-24 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
                                 <div className="text-6xl mb-4">🔍</div>
                                 <h3 className="text-xl font-bold text-gray-900">Tidak ditemukan</h3>
@@ -237,7 +194,7 @@ export default function CourseCatalogPage() {
 
                                         {/* Image Area */}
                                         <div className="relative h-48 overflow-hidden bg-gray-100">
-                                            <img src={course.image} alt={course.title} className="w-full h-full object-cover group-hover:scale-110 transition duration-700" />
+                                            {course.image && <img src={course.image} alt={course.title} className="w-full h-full object-cover group-hover:scale-110 transition duration-700" />}
 
                                             {/* Badge Level */}
                                             <div className="absolute top-3 left-3">
@@ -252,7 +209,7 @@ export default function CourseCatalogPage() {
                                             {/* Badge Price */}
                                             <div className="absolute bottom-3 right-3">
                                                 <span className="px-2 py-2 bg-white/90 backdrop-blur rounded-lg text-xs font-bold text-gray-900 shadow-sm">
-                                                    {course.price === 0 ? "GRATIS" : `Rp ${course.price.toLocaleString('id-ID')}`}
+                                                    {course.price === 0 ? "GRATIS" : `Rp ${typeof course.price === 'number' ? course.price.toLocaleString('id-ID') : course.price}`}
                                                 </span>
                                             </div>
                                         </div>
